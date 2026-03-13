@@ -1,0 +1,68 @@
+name: Fetch and Test Nodes
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # 每6小时执行一次
+  workflow_dispatch:
+
+jobs:
+  run-all:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Python Dependencies
+        run: pip install requests pyyaml
+
+      # 核心要求：安装并连接 Cloudflare WARP，全局接管流量防止 GitHub IP 被屏蔽
+      - name: Setup Cloudflare WARP
+        run: |
+          curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+          sudo apt-get update && sudo apt-get install cloudflare-warp -y
+          warp-cli --accept-tos registration new
+          warp-cli --accept-tos mode warp
+          warp-cli --accept-tos connect
+          sleep 5
+          curl -4 ifconfig.me # 打印当前 IP，确认已切换到 WARP
+
+      - name: 运行拉取与去重脚本 (fetch.py)
+        run: python fetch.py
+
+      # 下载 subconverter 用于将复杂的明文节点转为 Mihomo 格式
+      - name: Setup Subconverter
+        run: |
+          wget https://github.com/tindy2013/subconverter/releases/latest/download/subconverter_linux64.tar.gz
+          tar -zxvf subconverter_linux64.tar.gz
+          ./subconverter/subconverter > /dev/null 2>&1 &
+          sleep 2
+          # 启动本地 HTTP 服务供 subconverter 读取 raw_nodes.txt
+          python -m http.server 8000 &
+          sleep 1
+          # 请求本地 subconverter 接口进行转换
+          curl "http://127.0.0.1:25500/sub?target=clash&url=http://127.0.0.1:8000/raw_nodes.txt&insert=false" > clash_nodes.yaml
+
+      # 下载 Mihomo 核心用于真实测速
+      - name: Setup Mihomo
+        run: |
+          wget https://github.com/MetaCubeX/mihomo/releases/download/v1.18.3/mihomo-linux-amd64-v1.18.3.gz
+          gunzip mihomo-linux-amd64-v1.18.3.gz
+          mv mihomo-linux-amd64-v1.18.3 mihomo
+          chmod +x mihomo
+
+      - name: 运行测速与剔除脚本 (check.py)
+        run: python check.py
+
+      - name: Commit and Push final subscription
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Action"
+          git add final_sub.yaml raw_nodes.txt
+          git commit -m "Auto update valid nodes: $(date)" || echo "No changes to commit"
+          git push
