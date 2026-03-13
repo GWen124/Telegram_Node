@@ -4,6 +4,8 @@ import subprocess
 import time
 import urllib.parse
 import sys
+import hashlib
+import json
 
 try:
     with open("clash_nodes.yaml", "r", encoding='utf-8') as f:
@@ -16,12 +18,31 @@ if not isinstance(data, dict):
     print(f"❌ 严重错误: Subconverter 转换节点失败！返回内容为: {data}")
     sys.exit(1)
 
-proxies = data.get("proxies", [])
-if not proxies:
+raw_proxies = data.get("proxies", [])
+if not raw_proxies:
     print("没有找到任何可用代理节点，退出。")
     sys.exit(0)
 
-# 恢复标准配置，取消 IPv6 禁用
+# ==========================================
+# 核心升级：全局精准去重 (比较底层配置，无视名字差异)
+# ==========================================
+proxies = []
+seen_hashes = set()
+
+for p in raw_proxies:
+    # 剥离 'name' 字段，只对比服务器、端口、UUID等核心参数
+    p_config = {k: v for k, v in p.items() if k != 'name'}
+    # 转为排序后的 JSON 字符串以确保哈希稳定性
+    config_str = json.dumps(p_config, sort_keys=True)
+    config_hash = hashlib.md5(config_str.encode('utf-8')).hexdigest()
+    
+    if config_hash not in seen_hashes:
+        seen_hashes.add(config_hash)
+        proxies.append(p)
+
+print(f"✅ 全局去重完毕: 抓取总计 {len(raw_proxies)} 个，去重后剩余 {len(proxies)} 个独立节点。")
+
+# 生成测速配置文件
 mihomo_config = {
     "allow-lan": True,
     "bind-address": "*",
@@ -39,7 +60,6 @@ valid_proxies = []
 
 def test_proxy(name):
     encoded_name = urllib.parse.quote(name)
-    # 超时时间设为 2000ms
     test_url = f"http://127.0.0.1:9090/proxies/{encoded_name}/delay?timeout=2000&url=https://www.gstatic.com/generate_204"
     try:
         res = requests.get(test_url, timeout=3)
@@ -52,7 +72,6 @@ def test_proxy(name):
 print("开始进行连通性测试...")
 for p in proxies:
     original_name = p['name']
-    
     delay = test_proxy(original_name)
     if delay > 0:
         print(f"[✅ 保留] {original_name} - 延迟: {delay}ms")
@@ -60,18 +79,16 @@ for p in proxies:
     else:
         print(f"[❌ 删除] {original_name} - 测速不通")
 
-# 测速完毕，关闭核心
 process.terminate()
 
 # ==========================================
-# 测速通过的节点：统一重命名
+# 统一重命名
 # ==========================================
-PREFIX = "Internet｜" # 这里可以修改为你想要的名字前缀
+PREFIX = "免费节点" # 修改为你喜欢的名字
 for index, p in enumerate(valid_proxies, start=1):
     new_name = f"{PREFIX}_{index:03d}"
     p['name'] = new_name
 
-# 生成最终的订阅文件
 final_output = {
     "proxies": valid_proxies,
     "proxy-groups": [
@@ -88,4 +105,4 @@ final_output = {
 with open("final_sub.yaml", "w", encoding='utf-8') as f:
     yaml.dump(final_output, f, allow_unicode=True, sort_keys=False)
     
-print(f"\n测速与重命名完成！初始节点 {len(proxies)} 个，保留有效节点 {len(valid_proxies)} 个。")
+print(f"\n🎉 测速与重命名完成！最终保留有效节点 {len(valid_proxies)} 个。")
