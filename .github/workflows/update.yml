@@ -1,0 +1,31 @@
+name: Auto Update Sub
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # 每 6 小时自动运行一次
+  workflow_dispatch:      # 允许你在网页上手动点击运行
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18' # 使用 Node 18 以支持原生 fetch
+
+    - name: Run Proxy Scraper & Tester
+      run: node index.js
+
+    - name: Commit and Push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add sub.txt
+        # 如果文件有变化才提交
+        git diff --quiet && git diff --staged --quiet || git commit -m "Auto update sub.txt"
+        git push
