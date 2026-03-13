@@ -12,24 +12,34 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install WARP
+      - name: Install and Start WARP
         run: |
-          # 安装 Cloudflare WARP 客户端
+          # 1. 安装 Cloudflare WARP
           curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
           echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
           sudo apt-get update
           sudo apt-get install cloudflare-warp -y
           
-          # 注册并启动 WARP (使用代理模式 40000 端口，或者全域模式)
+          # 2. 注册并设置模式
           warp-cli --accept-tos registration new
-          warp-cli --accept-tos mode tunnel
+          # 修正：使用 'warp' 模式实现全域代理
+          warp-cli --accept-tos mode warp
           warp-cli --accept-tos connect
           
-          # 稍等片刻等待连接成功
-          sleep 5
-          echo "WARP 状态检查:"
+          # 3. 循环检查连接状态，最多等待 30 秒
+          echo "等待 WARP 连接..."
+          for i in {1..30}; do
+            STATUS=$(warp-cli --accept-tos status)
+            if echo "$STATUS" | grep -q "Connected"; then
+              echo "✅ WARP 已连接成功！"
+              break
+            fi
+            sleep 1
+          done
+
+          echo "当前出口 IP 信息:"
+          curl -4 icanhazip.com || echo "无法获取 IP"
           warp-cli --accept-tos status
-          curl -4 icanhazip.com
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -39,6 +49,7 @@ jobs:
       - name: Run Script
         run: node index.js
         env:
+          # 确保 Node.js 24 兼容性
           FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
       - name: Commit and Push
@@ -46,5 +57,10 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add sub.txt
-          git diff --quiet && git diff --staged --quiet || git commit -m "Update nodes via WARP"
-          git push
+          # 检查是否有文件变化
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "Update nodes via WARP $(date +'%Y-%m-%d %H:%M')"
+            git push
+          else
+            echo "No changes to commit"
+          fi
