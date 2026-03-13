@@ -2,21 +2,21 @@ const fs = require('fs');
 const net = require('net');
 
 // ==========================================
-// ⚙️ 1. 抓取与测速配置
+// ⚙️ 1. 基础配置
 // ==========================================
 const CHANNELS = [
     'https://t.me/s/freeVPNjd',     
     'https://t.me/s/freekankan',  
     'https://t.me/s/v2ray_free_vpn'
 ];
-const SUB_LIMIT = 30;      // 抓取订阅数量
-const NODE_LIMIT = 50;     // 抓取节点数量
-const TCP_TIMEOUT = 2500;  // 2.5秒测速标准
-const CONCURRENCY_LIMIT = 200; // 并发控制防崩溃
-const RENAME_PREFIX = "Telegram｜"; // 你的自定义前缀
+const SUB_LIMIT = 50;      
+const NODE_LIMIT = 100;    
+const TCP_TIMEOUT = 2500;  
+const CONCURRENCY_LIMIT = 200; 
+const RENAME_PREFIX = "Telegram｜"; 
 
 // ==========================================
-// 🛠️ 2. 你的专业级字典与规则
+// 🛠️ 2. 你的专业级字典 (完整保留)
 // ==========================================
 const TAG_SEP = "｜";
 const tagDict = {
@@ -36,31 +36,17 @@ const countryMap = [
     { keys: /日本|日|JP|Japan|Tokyo|Osaka/i, flag: '🇯🇵', name: '日本' },
     { keys: /韩国|韩|KR|Korea|Seoul|春川/i, flag: '🇰🇷', name: '韩国' },
     { keys: /新加坡|新|SG|Singapore|狮城/i, flag: '🇸🇬', name: '新加坡' },
-    { keys: /美国|美|US|America|United\s*States|洛杉矶|硅谷|西雅图/i, flag: '🇺🇸', name: '美国' },
-    { keys: /英国|英|GB|UK|London|England/i, flag: '🇬🇧', name: '英国' },
-    { keys: /德国|德|DE|Germany|法兰克福/i, flag: '🇩🇪', name: '德国' },
-    { keys: /法国|法|FR|France|巴黎/i, flag: '🇫🇷', name: '法国' },
-    { keys: /加拿大|加|CA|Canada/i, flag: '🇨🇦', name: '加拿大' },
-    { keys: /澳洲|澳大利亚|澳|AU|Australia|悉尼/i, flag: '🇦🇺', name: '澳洲' },
-    { keys: /俄罗斯|俄|RU|Russia|莫斯科/i, flag: '🇷🇺', name: '俄罗斯' },
-    { keys: /印度|印|IN|India|孟买/i, flag: '🇮🇳', name: '印度' },
-    { keys: /泰国|泰|TH|Thailand|曼谷/i, flag: '🇹🇭', name: '泰国' },
-    { keys: /马来西亚|马|MY|Malaysia/i, flag: '🇲🇾', name: '马来西亚' },
-    { keys: /土耳其|土|TR|Turkey/i, flag: '🇹🇷', name: '土耳其' },
-    { keys: /越南|越|VN|Vietnam/i, flag: '🇻🇳', name: '越南' },
-    { keys: /印尼|ID|Indonesia|雅加达/i, flag: '🇮🇩', name: '印尼' },
-    { keys: /菲律宾|菲|PH|Philippines/i, flag: '🇵🇭', name: '菲律宾' },
-    { keys: /中国|中|CN|China|北京|上海|广州|深圳/i, flag: '🇨🇳', name: '中国' }
+    { keys: /美国|美|US|America|United\s*States/i, flag: '🇺🇸', name: '美国' },
+    { keys: /英国|英|GB|UK|London/i, flag: '🇬🇧', name: '英国' },
+    { keys: /德国|德|DE|Germany/i, flag: '🇩🇪', name: '德国' },
+    { keys: /法国|法|FR|France/i, flag: '🇫🇷', name: '法国' },
+    { keys: /中国|中|CN|China/i, flag: '🇨🇳', name: '中国' }
 ];
 
-const sortOrder = [
-    '香港', '台湾', '澳门', '日本', '韩国', '新加坡', '美国', '英国', '德国', '法国', 
-    '加拿大', '澳洲', '俄罗斯', '印度', '泰国', '马来西亚', '土耳其', '越南', '印尼', '菲律宾', 
-    '中国', '未知'
-];
+const sortOrder = ['香港', '台湾', '澳门', '日本', '韩国', '新加坡', '美国', '英国', '德国', '法国', '中国', '未知'];
 
 // ==========================================
-// 🔌 3. 底层解析与测速工具
+// 🔌 3. 核心工具函数
 // ==========================================
 function pingTcp(host, port) {
     return new Promise((resolve) => {
@@ -74,7 +60,6 @@ function pingTcp(host, port) {
     });
 }
 
-// 把 URI 拆解成包含 name 和 server 的对象
 function parseNode(uri) {
     let name = "Unknown";
     let server = "";
@@ -93,16 +78,16 @@ function parseNode(uri) {
             if (parts.length > 1) name = decodeURIComponent(parts[1]);
         }
     } catch (e) {}
+    // 这里保留原始 URI，确保重命名前数据不丢失
     return { uri, name, server, port, tags: [], multi: "", cFlag: '🏴', cName: '未知' };
 }
 
-// 把改好名字的对象重新塞回 URI
 function repackageUri(node) {
     try {
         if (node.uri.startsWith('vmess://')) {
             const str = Buffer.from(node.uri.slice(8), 'base64').toString('utf8');
             const json = JSON.parse(str);
-            json.ps = node.name; // 注入新名字
+            json.ps = node.name;
             return 'vmess://' + Buffer.from(JSON.stringify(json)).toString('base64');
         } else {
             const parts = node.uri.split('#');
@@ -111,156 +96,87 @@ function repackageUri(node) {
     } catch (e) { return node.uri; }
 }
 
-function decodeSub(body) {
-    try {
-        const decoded = Buffer.from(body, 'base64').toString('utf8');
-        return decoded.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
-    } catch (e) { return body.split('\n').map(l => l.trim()).filter(l => l.includes('://')); }
-}
-
 // ==========================================
-// 🚀 4. 主程序流程
+// 🚀 4. 执行流程
 // ==========================================
 async function main() {
-    let globalSubLinks = [];
-    let globalNodeLinks = [];
+    let rawUris = [];
 
-    console.log('🚀 开始从 Telegram 抓取链接...');
+    // --- 第一步：抓取所有可能的链接 ---
     for (const url of CHANNELS) {
         try {
-            const res = await fetch(url, { headers: { 'user-agent': 'Mozilla/5.0' }, signal: AbortSignal.timeout(5000) });
+            const res = await fetch(url, { headers: { 'user-agent': 'Mozilla/5.0' } });
             const html = await res.text();
-            
-            let links = [];
-            const hrefRegex = /href=["'](https?:\/\/[^"']+)["']/g;
-            let hMatch; while ((hMatch = hrefRegex.exec(html))) links.push(hMatch[1]);
-            
-            const cleanText = html.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&');
-            const wideRegex = /(https?|ss|ssr|vmess|vless|trojan|hysteria2|hy2):\/\/[^\s"<>]+/g;
-            let wMatch; while ((wMatch = wideRegex.exec(cleanText))) links.push(wMatch[0].replace(/[.,!?;）)]+$/, ''));
-
-            const unique = [...new Set(links)].filter(l => !/\/\/(t\.me|telegram\.org)\//.test(l));
-            globalSubLinks.push(...unique.filter(l => l.startsWith('http')).slice(-SUB_LIMIT));
-            globalNodeLinks.push(...unique.filter(l => !l.startsWith('http')).slice(-NODE_LIMIT));
+            const wideRegex = /(https?|ss|vmess|vless|trojan):\/\/[^\s"<>]+/g;
+            let match; while ((match = wideRegex.exec(html))) {
+                rawUris.push(match[0].replace(/[.,!?;）)]+$/, ''));
+            }
         } catch (e) {}
     }
 
-    const finalSubLinks = [...new Set(globalSubLinks)];
-    console.log(`📦 发现 ${finalSubLinks.length} 个订阅链接，开始并发获取节点...`);
-
-    let rawUris = [...new Set(globalNodeLinks)];
-    const fetchSubs = finalSubLinks.map(async (sub) => {
-        try {
-            const res = await fetch(sub, { headers: { 'user-agent': 'ClashMeta/1.18.0' }, signal: AbortSignal.timeout(6000) });
-            const body = await res.text();
-            return decodeSub(body);
-        } catch (e) { return []; }
-    });
-    
-    const subResults = await Promise.all(fetchSubs);
-    subResults.forEach(nodes => rawUris.push(...nodes));
-
-    // 去重，排除 Surge 不支持的 vless/ssr
-    rawUris = [...new Set(rawUris)].filter(n => !n.startsWith('vless://') && !n.startsWith('ssr://'));
-    
-    // ==========================================
-    // 🧹 5. 解析并执行你的强力黑名单过滤
-    // ==========================================
-    let parsedNodes = rawUris.map(parseNode).filter(p => {
+    // --- 第二步：解析并过滤黑名单 (不看名字，只看 server 连通性) ---
+    let parsedNodes = [...new Set(rawUris)].map(parseNode).filter(p => {
         if (!p.server || /^(0\.0\.0\.0|127\.0\.0\.1|1\.1\.1\.1|8\.8\.8\.8)$/.test(p.server)) return false;
-        const trashRegex = /(官网|网址|获取|订阅|到期|过期|剩余|套餐|联系|邮箱|客服|通知|打不开|浏览器|最新客户端|下载新客户端|公告|发布|用不了|教程|导航|重置|续费|资源服|教学服|emby|porn|http:\/\/|https:\/\/|过滤掉)/i;
-        if (trashRegex.test(p.name)) return false;
-        return true;
+        const trashRegex = /(官网|网址|获取|订阅|到期|过期|剩余|套餐|客服|公告|教程|重置|续费|porn|过滤掉)/i;
+        return !trashRegex.test(p.name);
     });
 
-    console.log(`🔍 过滤垃圾节点后剩余 ${parsedNodes.length} 个，开始 TCP 测速...`);
+    console.log(`🔍 准备对 ${parsedNodes.length} 个潜在节点进行 TCP 测速...`);
 
-    // ==========================================
-    // ⚡ 6. 分批 TCP 测速
-    // ==========================================
+    // --- 第三步：测速筛选可用节点 ---
     const aliveNodes = [];
     for (let i = 0; i < parsedNodes.length; i += CONCURRENCY_LIMIT) {
         const batch = parsedNodes.slice(i, i + CONCURRENCY_LIMIT);
-        const testPromises = batch.map(async (p) => {
-            const isAlive = await pingTcp(p.server, p.port);
-            if (isAlive) aliveNodes.push(p);
-        });
-        await Promise.all(testPromises);
-        console.log(`⏳ 测速进度: ${Math.min(i + CONCURRENCY_LIMIT, parsedNodes.length)} / ${parsedNodes.length}`);
+        await Promise.all(batch.map(async (p) => {
+            if (await pingTcp(p.server, p.port)) aliveNodes.push(p);
+        }));
     }
 
-    console.log(`✅ 测速完毕！存活节点：${aliveNodes.length} 个。开始执行专业重命名规则...`);
-    
-    // ==========================================
-    // 🎨 7. 你的专业级提取与重命名逻辑
-    // ==========================================
+    // --- 第四步：执行你的重命名逻辑 (确保不覆盖) ---
     let grouped = {};
-
     aliveNodes.forEach(p => {
         let tempName = p.name;
-        // A. 地区识别
+        // 地区识别
         for (let c of countryMap) {
             if (c.keys.test(tempName)) { p.cFlag = c.flag; p.cName = c.name; break; }
         }
-        // B. 标签提取
+        // 标签提取
         sortedTagKeys.forEach(key => {
             let regex = new RegExp(key, "i");
             if (regex.test(tempName)) {
-                let formattedTag = tagDict[key];
-                if (!p.tags.includes(formattedTag)) p.tags.push(formattedTag);
+                if (!p.tags.includes(tagDict[key])) p.tags.push(tagDict[key]);
                 tempName = tempName.replace(regex, "");
             }
         });
-        // C. 倍率提取
+        // 倍率提取
         const blMatch = tempName.match(/((倍率|X|x|×)\D?((\d{1,3}\.)?\d+)\D?)|((\d{1,3}\.)?\d+)(倍|X|x|×)/i);
         if (blMatch) {
-            const rev = blMatch[0].match(/(\d[\d.]*)/)[0];
-            if (rev !== "1" && rev !== "1.0") p.multi = "x" + rev; 
+            const val = blMatch[0].match(/(\d[\d.]*)/)[0];
+            if (val !== "1" && val !== "1.0") p.multi = "x" + val;
         }
 
         if (!grouped[p.cName]) grouped[p.cName] = [];
         grouped[p.cName].push(p);
     });
 
-    // D. 地区排序
-    let sortedRegions = Object.keys(grouped).sort((a, b) => {
-        let idxA = sortOrder.indexOf(a); let idxB = sortOrder.indexOf(b);
-        if (idxA === -1) idxA = 999; if (idxB === -1) idxB = 999;
-        return idxA - idxB;
-    });
+    const finalUris = [];
+    const sortedRegions = Object.keys(grouped).sort((a, b) => (sortOrder.indexOf(a) || 999) - (sortOrder.indexOf(b) || 999));
 
-    const finalCleanUris = [];
-    
-    // E. 节点内排序与重命名拼接
     for (let region of sortedRegions) {
-        let items = grouped[region];
-        // 排序规则：纯净节点在前，带标签节点在后
-        items.sort((a, b) => {
-            let aHasTag = a.tags.length > 0 ? 1 : 0;
-            let bHasTag = b.tags.length > 0 ? 1 : 0;
-            if (aHasTag !== bHasTag) return aHasTag - bHasTag;
-            return a.name.localeCompare(b.name);
-        });
-
-        items.forEach((item, index) => {
-            let seq = (index + 1).toString().padStart(2, '0'); // 生成 01, 02...
-            let coreName = `${item.cFlag} ${region} ${seq}`;
-            let newName = RENAME_PREFIX + coreName;
+        grouped[region].forEach((item, index) => {
+            // 这里是关键：自增序号保证了名字在输出给 Surge 时永远不冲突
+            let seq = (index + 1).toString().padStart(2, '0');
+            let newName = `${RENAME_PREFIX}${item.cFlag} ${region} ${seq}`;
+            if (item.tags.length > 0) newName += ` [ ${item.tags.join(TAG_SEP)} ]`;
+            if (item.multi) newName += ` ${item.multi}`;
             
-            if (item.tags.length > 0) newName += ` [ ${item.tags.join(TAG_SEP)} ]`; 
-            if (item.multi !== "") newName += ` ${item.multi}`;
-            
-            item.name = newName; // 替换旧名字
-            finalCleanUris.push(repackageUri(item)); // 重新打包成链接
+            item.name = newName;
+            finalUris.push(repackageUri(item));
         });
     }
 
-    // ==========================================
-    // 📦 8. 输出供 Surge 拉取
-    // ==========================================
-    const finalBase64 = Buffer.from(finalCleanUris.join('\n')).toString('base64');
-    fs.writeFileSync('sub.txt', finalBase64);
-    console.log('🎉 成功生成最纯净的 sub.txt 文件！');
+    fs.writeFileSync('sub.txt', Buffer.from(finalUris.join('\n')).toString('base64'));
+    console.log(`🎉 任务完成！生成的 sub.txt 包含 ${finalUris.length} 个完美重命名的节点。`);
 }
 
 main();
