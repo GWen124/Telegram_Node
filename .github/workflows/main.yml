@@ -2,8 +2,8 @@ name: Fetch and Test Nodes
 
 on:
   schedule:
-    - cron: '0 */6 * * *' 
-  workflow_dispatch:      
+    - cron: '0 */6 * * *' # 每6小时运行一次
+  workflow_dispatch:      # 支持手动触发
 
 jobs:
   run-all:
@@ -31,35 +31,35 @@ jobs:
           sleep 5
           curl -4 ifconfig.me
 
-      - name: Fetch TG Nodes and Generate API URL (fetch.py)
+      - name: 1. Fetch Nodes & Build API (fetch.py)
         run: python fetch.py
 
-      - name: Setup Subconverter and Convert ALL Sources
+      - name: 2. Setup Subconverter & Merge Nodes
         run: |
           wget https://github.com/tindy2013/subconverter/releases/latest/download/subconverter_linux64.tar.gz
           tar -zxvf subconverter_linux64.tar.gz
           ./subconverter/subconverter > /dev/null 2>&1 &
           sleep 2
           
-          # 启动本地服务让 subconverter 能读取刚才抓的 TG 节点
+          # 开个本地端口把 TG 节点发给 Subconverter
           python -m http.server 8000 &
           sleep 1
           
-          # 读取 fetch.py 生成的包含了所有外链和本地链接的 API
+          # 读取 fetch 拼接好的指令
           API_URL=$(cat sub_api_url.txt)
           curl "$API_URL" > clash_nodes.yaml
 
-      - name: Setup Mihomo
+      - name: 3. Setup Mihomo Core
         run: |
           wget https://github.com/MetaCubeX/mihomo/releases/download/v1.18.3/mihomo-linux-amd64-v1.18.3.gz
           gunzip mihomo-linux-amd64-v1.18.3.gz
           mv mihomo-linux-amd64-v1.18.3 mihomo
           chmod +x mihomo
 
-      - name: Global Dedup, Test and Rename Nodes (check.py)
+      - name: 4. Dedup, Test and Rename (check.py)
         run: python check.py
 
-      - name: Commit and Push final subscription
+      - name: 5. Commit and Push
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Action"
