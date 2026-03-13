@@ -1,58 +1,78 @@
-name: Fetch and Check Nodes
+import re
+import requests
+import base64
+import hashlib
 
-on:
-  schedule:
-    - cron: '0 */6 * * *' # 每6小时运行一次
-  workflow_dispatch:
+CHANNELS = [
+    'https://t.me/s/proxygogogo',
+    'https://t.me/s/freekankan',
+    'https://t.me/s/freeVPNjd'
+]
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+def get_nodes():
+    nodes = []
+    # 匹配各类协议
+    raw_pattern = re.compile(r'(vmess|vless|ss|ssr|trojan|hysteria2)://[^\s\'"<>]+')
+    # 匹配潜在的订阅链接
+    sub_pattern = re.compile(r'https?://[^\s\'"<>]+')
+    
+    for url in CHANNELS:
+        try:
+            res = requests.get(url, timeout=10).text
+            
+            # 1. 抓取明文节点
+            for m in raw_pattern.finditer(res):
+                nodes.append(m.group(0))
+                
+            # 2. 抓取订阅链接并尝试解析 Base64
+            for m in sub_pattern.finditer(res):
+                sub_url = m.group(0)
+                if "t.me" in sub_url: continue # 跳过频道本身的链接
+                try:
+                    sub_res = requests.get(sub_url, timeout=5).text
+                    decoded = base64.b64decode(sub_res).decode('utf-8')
+                    for rm in raw_pattern.finditer(decoded):
+                        nodes.append(rm.group(0))
+                except:
+                    pass # 非 Base64 订阅或解析失败则跳过
+        except Exception as e:
+            print(f"Fetch error {url}: {e}")
+            
+    return nodes
 
-      - name: Set up Python
-        uses: auctions/setup-python@v4
-        with:
-          python-version: '3.9'
+def process_nodes(nodes):
+    unique_configs = {} # md5(配置) -> 完整节点
+    name_count = {}     # 名称 -> 出现次数
+    final_nodes = []
 
-      - name: Install dependencies
-        run: |
-          pip install requests
+    for node in nodes:
+        # 切割节点：前面是配置，后面是名称 (兼容带 # 的情况)
+        parts = node.split('#')
+        config_part = parts[0]
+        original_name = parts[1] if len(parts) > 1 else "Unnamed"
+        
+        # 1. 去重：只看配置部分的 MD5
+        config_hash = hashlib.md5(config_part.encode()).hexdigest()
+        if config_hash in unique_configs:
+            continue
+        unique_configs[config_hash] = node
 
-      - name: Install Cloudflare WARP
-        run: |
-          curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
-          echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
-          sudo apt-get update && sudo apt-get install cloudflare-warp -y
-          # 启动 WARP (仅设置模式，GitHub环境中通常需要跳过一些注册步骤)
-          warp-cli --accept-tos registration register
-          warp-cli --accept-tos mode proxy
-          warp-cli --accept-tos connect &
+        # 2. 重命名：处理名称重复
+        if original_name in name_count:
+            name_count[original_name] += 1
+            new_name = f"{original_name}_{name_count[original_name]:02d}"
+        else:
+            name_count[original_name] = 1
+            new_name = original_name
+        
+        # 重新组合节点
+        final_nodes.append(f"{config_part}#{new_name}")
+    
+    return final_nodes
 
-      - name: Fetch Nodes
-        run: python fetch.py
-
-      - name: Speed Test and Filter
-        run: |
-          # 这里推荐下载一个 mihomo 二进制文件进行异步健康检查
-          wget https://github.com/MetaCubeX/mihomo/releases/download/v1.18.3/mihomo-linux-amd64-v1.18.3.gz
-          gunzip mihomo-linux-amd64-v1.18.3.gz
-          chmod +x mihomo-linux-amd64-v1.18.3
-          
-          # 说明：实际测速逻辑建议将 raw_nodes.txt 转换为 Clash 配置文件
-          # 然后运行 mihomo 并通过 API 获取健康检查结果。
-          # 简化版逻辑：直接用 curl 模拟代理请求（需转换格式）
-          
-          echo "Starting Node Filtering..."
-          # 这里你可以调用另一个 check.py 脚本来执行具体的 mihomo API 筛选
-          # 下面提供一个简单的检测思路
-
-      - name: Commit and Push
-        run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Action"
-          git add .
-          git commit -m "Update nodes: $(date)"
-          git push
+if __name__ == "__main__":
+    nodes = get_nodes()
+    processed = process_nodes(nodes)
+    with open("raw_nodes.txt", "w", encoding='utf-8') as f:
+        f.write("\n".join(processed))
+    print(f"抓取并处理完毕，共保留 {len(processed)} 个独立节点。")
