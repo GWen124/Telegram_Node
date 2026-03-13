@@ -24,15 +24,14 @@ if not raw_proxies:
     sys.exit(0)
 
 # ==========================================
-# 核心升级：全局精准去重 (比较底层配置，无视名字差异)
+# 核心升级：全局精准去重 (剥离名称，比对底层配置)
 # ==========================================
 proxies = []
 seen_hashes = set()
 
 for p in raw_proxies:
-    # 剥离 'name' 字段，只对比服务器、端口、UUID等核心参数
+    # 移除 'name' 字段再做哈希，这样即便两个节点名字不同但配置一样，也能被去重
     p_config = {k: v for k, v in p.items() if k != 'name'}
-    # 转为排序后的 JSON 字符串以确保哈希稳定性
     config_str = json.dumps(p_config, sort_keys=True)
     config_hash = hashlib.md5(config_str.encode('utf-8')).hexdigest()
     
@@ -60,6 +59,7 @@ valid_proxies = []
 
 def test_proxy(name):
     encoded_name = urllib.parse.quote(name)
+    # 严格测速，超过 2000ms 直接判死刑
     test_url = f"http://127.0.0.1:9090/proxies/{encoded_name}/delay?timeout=2000&url=https://www.gstatic.com/generate_204"
     try:
         res = requests.get(test_url, timeout=3)
@@ -84,11 +84,12 @@ process.terminate()
 # ==========================================
 # 统一重命名
 # ==========================================
-PREFIX = "免费节点" # 修改为你喜欢的名字
+PREFIX = "免费节点" # 👉 这里你可以随心所欲改成 "公益节点"、"VVIP" 等
 for index, p in enumerate(valid_proxies, start=1):
     new_name = f"{PREFIX}_{index:03d}"
     p['name'] = new_name
 
+# 生成最终配置
 final_output = {
     "proxies": valid_proxies,
     "proxy-groups": [
