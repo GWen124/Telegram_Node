@@ -1,31 +1,50 @@
-name: Auto Update Sub
+name: Auto Fetch with WARP
 
 on:
+  workflow_dispatch:
   schedule:
-    - cron: '0 */6 * * *' # 每 6 小时自动运行一次
-  workflow_dispatch:      # 允许你在网页上手动点击运行
+    - cron: '0 */6 * * *'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18' # 使用 Node 18 以支持原生 fetch
+      - name: Install WARP
+        run: |
+          # 安装 Cloudflare WARP 客户端
+          curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+          sudo apt-get update
+          sudo apt-get install cloudflare-warp -y
+          
+          # 注册并启动 WARP (使用代理模式 40000 端口，或者全域模式)
+          warp-cli --accept-tos registration new
+          warp-cli --accept-tos mode tunnel
+          warp-cli --accept-tos connect
+          
+          # 稍等片刻等待连接成功
+          sleep 5
+          echo "WARP 状态检查:"
+          warp-cli --accept-tos status
+          curl -4 icanhazip.com
 
-    - name: Run Proxy Scraper & Tester
-      run: node index.js
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
-    - name: Commit and Push changes
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add sub.txt
-        # 如果文件有变化才提交
-        git diff --quiet && git diff --staged --quiet || git commit -m "Auto update sub.txt"
-        git push
+      - name: Run Script
+        run: node index.js
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+      - name: Commit and Push
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add sub.txt
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update nodes via WARP"
+          git push
