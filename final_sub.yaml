@@ -1,18 +1,19 @@
 proxies:
-- name: US美国(ProxyGo免费节点分享)
-  server: 2001:bc8:32d7:302::14
-  port: 44579
+- name: 免费节点_001
+  server: 82.198.246.97
+  port: 180
   type: vmess
-  uuid: 8e34e170-13ae-4892-9d20-05962acc9f84
+  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
   alterId: 0
   cipher: auto
   tls: false
-  network: ws
-  ws-opts:
-    path: /?BIA_TELEGRAM@AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1?ed=2560
-    headers:
-      Host: TABRIZ.NET
-- name: US美国(ProxyGo免费节点分享)_05
+- name: 免费节点_002
+  server: switcher-nick-croquet.freesocks.work
+  port: 443
+  type: ss
+  cipher: chacha20-ietf-poly1305
+  password: RFK38Cg7APneSB5cWDcpbm
+- name: 免费节点_003
   server: 2001:bc8:32d7:302::11
   port: 44579
   type: vmess
@@ -25,51 +26,13 @@ proxies:
     path: /?BIA_TELEGRAM@AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1?ed=2560
     headers:
       Host: TABRIZ.NET
-- name: US美国(ProxyGo免费节点分享)_07
+- name: 免费节点_004
   server: tinkered-pennies-puppies.freesocks.work
   port: 443
   type: ss
   cipher: chacha20-ietf-poly1305
   password: hbGrpfvNrJsUmKmPbR3iY2
-- name: FR法国(ProxyGo免费节点分享)
-  server: 82.198.246.97
-  port: 180
-  type: vmess
-  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
-  alterId: 0
-  cipher: auto
-  tls: false
-- name: FR法国(ProxyGo免费节点分享)_02
-  server: switcher-nick-croquet.freesocks.work
-  port: 443
-  type: ss
-  cipher: chacha20-ietf-poly1305
-  password: RFK38Cg7APneSB5cWDcpbm
-- name: GB英国(ProxyGo免费节点分享)
-  server: 82.198.246.97
-  port: 180
-  type: vmess
-  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
-  alterId: 0
-  cipher: auto
-  tls: false
-- name: GB英国(ProxyGo免费节点分享)_02
-  server: 82.198.246.97
-  port: 180
-  type: vmess
-  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
-  alterId: 0
-  cipher: auto
-  tls: false
-- name: GB英国(ProxyGo免费节点分享)_03
-  server: 82.198.246.97
-  port: 180
-  type: vmess
-  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
-  alterId: 0
-  cipher: auto
-  tls: false
-- name: US美国(ProxyGo免费节点分享)_13
+- name: 免费节点_005
   server: 2001:bc8:32d7:302::10
   port: 44579
   type: vmess
@@ -82,165 +45,42 @@ proxies:
     path: /?BIA_TELEGRAM@AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1
     headers:
       Host: TURK1.NET.NET
-- name: JP日本-01
-  server: gtm1.ktmwan.net
-  port: 12883
+- name: 免费节点_006
+  server: 2001:bc8:32d7:302::14
+  port: 44579
   type: vmess
-  uuid: bbd785de-9793-4453-be40-6a3fdc418203
+  uuid: 8e34e170-13ae-4892-9d20-05962acc9f84
   alterId: 0
   cipher: auto
   tls: false
   network: ws
   ws-opts:
-    path: /
+    path: /?BIA_TELEGRAM@AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1?ed=2560
     headers:
-      Host: baidu.com
-- name: USA美国-01
-  server: gtm1.ktmwan.net
-  port: 12885
-  type: vmess
-  uuid: bbd785de-9793-4453-be40-6a3fdc418203
-  alterId: 0
-  cipher: auto
-  tls: false
-  network: ws
-  ws-opts:
-    path: /
-    headers:
-      Host: baidu.com
-- name: TW台湾-01
-  server: gtm1.ktmwan.net
-  port: 12888
-  type: vmess
-  uuid: bbd785de-9793-4453-be40-6a3fdc418203
-  alterId: 0
-  cipher: auto
-  tls: false
-  network: ws
-  ws-opts:
-    path: /
-    headers:
-      Host: baidu.com
-- name: IN印度-01
-  server: gtm1.ktmwan.net
-  port: 12887
-  type: vmess
-  uuid: bbd785de-9793-4453-be40-6a3fdc418203
-  alterId: 0
-  cipher: auto
-  tls: false
-  network: ws
-  ws-opts:
-    path: /
-    headers:
-      Host: baidu.com
-- name: VN越南-01
-  server: gtm1.ktmwan.net
-  port: 12891
-  type: vmess
-  uuid: bbd785de-9793-4453-be40-6a3fdc418203
-  alterId: 0
-  cipher: auto
-  tls: false
-  network: ws
-  ws-opts:
-    path: /
-    headers:
-      Host: baidu.com
-- name: AU澳大利亚-01
-  server: gtm1.ktmwan.net
-  port: 12889
-  type: vmess
-  uuid: bbd785de-9793-4453-be40-6a3fdc418203
-  alterId: 0
-  cipher: auto
-  tls: false
-  network: ws
-  ws-opts:
-    path: /
-    headers:
-      Host: baidu.com
-- name: UK英国-01
-  server: gtm1.ktmwan.net
-  port: 12886
-  type: vmess
-  uuid: bbd785de-9793-4453-be40-6a3fdc418203
-  alterId: 0
-  cipher: auto
-  tls: false
-  network: ws
-  ws-opts:
-    path: /
-    headers:
-      Host: baidu.com
-- name: CA加拿大-01
-  server: gtm1.ktmwan.net
-  port: 12897
-  type: vmess
-  uuid: bbd785de-9793-4453-be40-6a3fdc418203
-  alterId: 0
-  cipher: auto
-  tls: false
-  network: ws
-  ws-opts:
-    path: /
-    headers:
-      Host: baidu.com
-- name: DE德国-01
-  server: gtm1.ktmwan.net
-  port: 12898
-  type: vmess
-  uuid: bbd785de-9793-4453-be40-6a3fdc418203
-  alterId: 0
-  cipher: auto
-  tls: false
-  network: ws
-  ws-opts:
-    path: /
-    headers:
-      Host: baidu.com
-- name: FR法国-01
-  server: gtm1.ktmwan.net
-  port: 12899
-  type: vmess
-  uuid: bbd785de-9793-4453-be40-6a3fdc418203
-  alterId: 0
-  cipher: auto
-  tls: false
-  network: ws
-  ws-opts:
-    path: /
-    headers:
-      Host: baidu.com
-- name: 节点日期：2026-03-13
+      Host: TABRIZ.NET
+- name: 免费节点_007
   server: 82.38.31.189
   port: 8080
   type: ss
   cipher: chacha20-ietf-poly1305
   password: k1dBOmOB4oqi7Ump37a1bQ
+- name: 免费节点_008
+  server: 80.173.231.254
+  port: 12420
+  type: trojan
+  password: wp9IsiY82uQhcmgNC1eoBM
+  sni: www.semanticstaplegun.click
 proxy-groups:
 - name: 🚀 自动选择
   type: url-test
   proxies:
-  - US美国(ProxyGo免费节点分享)
-  - US美国(ProxyGo免费节点分享)_05
-  - US美国(ProxyGo免费节点分享)_07
-  - FR法国(ProxyGo免费节点分享)
-  - FR法国(ProxyGo免费节点分享)_02
-  - GB英国(ProxyGo免费节点分享)
-  - GB英国(ProxyGo免费节点分享)_02
-  - GB英国(ProxyGo免费节点分享)_03
-  - US美国(ProxyGo免费节点分享)_13
-  - JP日本-01
-  - USA美国-01
-  - TW台湾-01
-  - IN印度-01
-  - VN越南-01
-  - AU澳大利亚-01
-  - UK英国-01
-  - CA加拿大-01
-  - DE德国-01
-  - FR法国-01
-  - 节点日期：2026-03-13
+  - 免费节点_001
+  - 免费节点_002
+  - 免费节点_003
+  - 免费节点_004
+  - 免费节点_005
+  - 免费节点_006
+  - 免费节点_007
+  - 免费节点_008
   url: https://www.gstatic.com/generate_204
   interval: 3600
