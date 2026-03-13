@@ -9,11 +9,9 @@ jobs:
   run-all:
     runs-on: ubuntu-latest
     steps:
-      # 消除 Node 20 警告，更新到 v4
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 消除 Node 20 警告，更新到 v5
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -33,21 +31,23 @@ jobs:
           sleep 5
           curl -4 ifconfig.me
 
-      - name: Fetch and Parse Nodes (fetch.py)
+      - name: Fetch TG Nodes and Generate API URL (fetch.py)
         run: python fetch.py
 
-      - name: Setup Subconverter and Convert
+      - name: Setup Subconverter and Convert ALL Sources
         run: |
           wget https://github.com/tindy2013/subconverter/releases/latest/download/subconverter_linux64.tar.gz
           tar -zxvf subconverter_linux64.tar.gz
           ./subconverter/subconverter > /dev/null 2>&1 &
           sleep 2
           
+          # 启动本地服务让 subconverter 能读取刚才抓的 TG 节点
           python -m http.server 8000 &
           sleep 1
           
-          # 核心修复：将请求中的 URL 参数进行了标准的 URL 编码 (http%3A%2F%2F...)
-          curl "http://127.0.0.1:25500/sub?target=clash&url=http%3A%2F%2F127.0.0.1%3A8000%2Fraw_nodes.txt&insert=false" > clash_nodes.yaml
+          # 读取 fetch.py 生成的包含了所有外链和本地链接的 API
+          API_URL=$(cat sub_api_url.txt)
+          curl "$API_URL" > clash_nodes.yaml
 
       - name: Setup Mihomo
         run: |
@@ -56,13 +56,13 @@ jobs:
           mv mihomo-linux-amd64-v1.18.3 mihomo
           chmod +x mihomo
 
-      - name: Test and Filter Nodes (check.py)
+      - name: Global Dedup, Test and Rename Nodes (check.py)
         run: python check.py
 
       - name: Commit and Push final subscription
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Action"
-          git add final_sub.yaml raw_nodes.txt
+          git add final_sub.yaml tg_nodes.txt
           git commit -m "Auto update valid nodes: $(date)" || echo "No changes to commit"
           git push
