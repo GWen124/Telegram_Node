@@ -24,13 +24,27 @@ if not raw_proxies:
     sys.exit(0)
 
 # ==========================================
-# 1. 全局精准去重 & 防撞名保护
+# 1. 结构安全过滤 & 全局精准去重
 # ==========================================
 proxies = []
 seen_hashes = set()
-seen_names = set() # 记录已有的名字，防止内核因名字重复而崩溃
+seen_names = set() 
 
 for p in raw_proxies:
+    # --- 防内核崩溃装甲：拦截明显损坏的垃圾节点 ---
+    try:
+        if 'server' not in p or not p['server']: continue
+        if 'port' not in p: continue
+        port = int(p['port'])
+        if not (1 <= port <= 65535): continue
+        if p.get('type') in ['vless', 'vmess', 'trojan']:
+            # 简单的长度校验，拦截残缺的 UUID 导致内核致命崩溃
+            if 'uuid' in p and len(str(p['uuid'])) < 10: continue
+            if 'password' in p and len(str(p['password'])) < 2: continue
+    except:
+        continue # 直接抛弃导致验证失败的节点
+    # -----------------------------------------------
+
     p_config = {k: v for k, v in p.items() if k != 'name'}
     config_str = json.dumps(p_config, sort_keys=True)
     config_hash = hashlib.md5(config_str.encode('utf-8')).hexdigest()
@@ -38,7 +52,7 @@ for p in raw_proxies:
     if config_hash not in seen_hashes:
         seen_hashes.add(config_hash)
         
-        # 防撞名机制：如果名字重复，自动在后面加数字，保证配置合法
+        # 防重名机制，保证 YAML 配置合法
         original_name = str(p.get('name', 'Unnamed'))
         new_name = original_name
         counter = 1
@@ -50,7 +64,7 @@ for p in raw_proxies:
         
         proxies.append(p)
 
-print(f"✅ 全局去重完毕: 抓取总计 {len(raw_proxies)} 个，去重后剩余 {len(proxies)} 个物理独立节点。")
+print(f"✅ 全局去重完毕: 抓取总计 {len(raw_proxies)} 个，安全过滤与去重后剩余 {len(proxies)} 个物理独立节点。")
 
 mihomo_config = {
     "allow-lan": True,
@@ -61,10 +75,21 @@ mihomo_config = {
 with open("mihomo_config.yaml", "w", encoding='utf-8') as f:
     yaml.dump(mihomo_config, f, allow_unicode=True)
 
-print("启动 Mihomo 进行测速...")
-process = subprocess.Popen(["./mihomo", "-d", ".", "-f", "mihomo_config.yaml"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-# 增加等待时间，因为几百个节点内核启动需要一点时间
-time.sleep(5) 
+# 启动 Mihomo 并捕获它的错误输出，精准定位崩溃元凶
+with open("mihomo_error.log", "w") as err_file:
+    process = subprocess.Popen(["./mihomo", "-d", ".", "-f", "mihomo_config.yaml"], stdout=subprocess.DEVNULL, stderr=err_file)
+
+time.sleep(5) # 给几百个节点留出启动时间
+
+# 检测内核是否已经崩溃闪退
+if process.poll() is not None:
+    with open("mihomo_error.log", "r") as err_file:
+        error_msg = err_file.read()
+    print(f"\n❌ 严重致命错误: 发现格式异常的野生节点，导致 Mihomo 内核启动崩溃！")
+    print(f"================== 内核报错日志 ==================")
+    print(error_msg)
+    print(f"==================================================")
+    sys.exit(1)
 
 valid_proxies = []
 
