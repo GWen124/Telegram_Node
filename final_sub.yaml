@@ -1,24 +1,5 @@
 proxies:
-- name: Internet｜_001
-  server: 2001:bc8:32d7:302::11
-  port: 44579
-  type: vmess
-  uuid: 8e34e170-13ae-4892-9d20-05962acc9f84
-  alterId: 0
-  cipher: auto
-  tls: false
-  network: ws
-  ws-opts:
-    path: /?BIA_TELEGRAM@AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1?ed=2560
-    headers:
-      Host: TABRIZ.NET
-- name: Internet｜_002
-  server: switcher-nick-croquet.freesocks.work
-  port: 443
-  type: ss
-  cipher: chacha20-ietf-poly1305
-  password: RFK38Cg7APneSB5cWDcpbm
-- name: Internet｜_003
+- name: Internet_001
   server: 2001:bc8:32d7:302::14
   port: 44579
   type: vmess
@@ -31,7 +12,26 @@ proxies:
     path: /?BIA_TELEGRAM@AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1?ed=2560
     headers:
       Host: TABRIZ.NET
-- name: Internet｜_004
+- name: Internet_002
+  server: 2001:bc8:32d7:302::11
+  port: 44579
+  type: vmess
+  uuid: 8e34e170-13ae-4892-9d20-05962acc9f84
+  alterId: 0
+  cipher: auto
+  tls: false
+  network: ws
+  ws-opts:
+    path: /?BIA_TELEGRAM@AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1?ed=2560
+    headers:
+      Host: TABRIZ.NET
+- name: Internet_003
+  server: tinkered-pennies-puppies.freesocks.work
+  port: 443
+  type: ss
+  cipher: chacha20-ietf-poly1305
+  password: hbGrpfvNrJsUmKmPbR3iY2
+- name: Internet_004
   server: 2001:bc8:32d7:302::10
   port: 44579
   type: vmess
@@ -44,27 +44,28 @@ proxies:
     path: /?BIA_TELEGRAM@AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1
     headers:
       Host: TURK1.NET.NET
-- name: Internet｜_005
-  server: tinkered-pennies-puppies.freesocks.work
+- name: Internet_005
+  server: 58.152.25.253
   port: 443
-  type: ss
-  cipher: chacha20-ietf-poly1305
-  password: hbGrpfvNrJsUmKmPbR3iY2
-- name: Internet｜_006
-  server: 82.38.31.99
-  port: 8080
-  type: ss
-  cipher: chacha20-ietf-poly1305
-  password: oZIoA69Q8yhcQV8ka3Pa3A
+  type: trojan
+  password: BxceQaOe
+  sni: t.me%2Fripaojiedian
+  skip-cert-verify: true
+- name: Internet_006
+  server: 80.173.231.254
+  port: 12420
+  type: trojan
+  password: wp9IsiY82uQhcmgNC1eoBM
+  sni: www.semanticstaplegun.click
 proxy-groups:
 - name: 🚀 自动选择
   type: url-test
   proxies:
-  - Internet｜_001
-  - Internet｜_002
-  - Internet｜_003
-  - Internet｜_004
-  - Internet｜_005
-  - Internet｜_006
+  - Internet_001
+  - Internet_002
+  - Internet_003
+  - Internet_004
+  - Internet_005
+  - Internet_006
   url: https://www.gstatic.com/generate_204
   interval: 3600
