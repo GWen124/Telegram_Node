@@ -55,11 +55,16 @@ jobs:
       - name: 4. Dedup, Test and Rename
         run: python check.py
 
-      - name: 5. Generate Universal Base64 Subscription
+      - name: 5. Generate Universal Base64 Subscription (生成通用订阅)
         run: |
+          # 🌟 核心修复：重新唤醒 HTTP 服务，防止被上一环节的 GitHub 系统杀后台
+          python -m http.server 8000 &
+          sleep 2
+          
+          # 这次 Subconverter 就能顺畅读到刚刚出炉的 final_sub.yaml 了！
           curl -s "http://127.0.0.1:25500/sub?target=mixed&url=http://127.0.0.1:8000/final_sub.yaml" > final_sub.txt
 
-      - name: 6. Commit and Push
+      - name: 6. Commit and Push (保存所有格式的极速节点)
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Action"
@@ -67,6 +72,6 @@ jobs:
           git add final_sub.yaml final_sub.txt tg_nodes.txt fetch.py
           git commit -m "🚀 Auto update High-Speed nodes: $(date)" || echo "No changes to commit"
           
-          # 终极无敌防冲突策略：如果报错，再次 add 所有文件强制提交，彻底解决 modify/delete 冲突
+          # 终极无敌防冲突策略
           git pull origin main --rebase=false -X ours || (git add tg_nodes.txt final_sub.yaml final_sub.txt fetch.py || true && git commit -m "Auto resolve merge conflicts" || true)
           git push
