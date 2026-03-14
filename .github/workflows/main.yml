@@ -2,7 +2,7 @@ name: Fetch and Test High-Speed Nodes
 
 on:
   schedule:
-    - cron: '0 */6 * * *' # 每 6 小时自动执行
+    - cron: '0 */3 * * *' # 每 6 小时自动执行
   workflow_dispatch:      # 允许手动在网页点击触发
 
 jobs:
