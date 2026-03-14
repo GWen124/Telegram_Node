@@ -63,8 +63,13 @@ jobs:
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Action"
-          # 核心修复：把可能发生自我修改的 fetch.py 也加到提交列表里
+          
+          # 把所有可能变动的文件加入暂存区
           git add final_sub.yaml tg_nodes.txt fetch.py
           git commit -m "🚀 Auto update High-Speed nodes: $(date)" || echo "No changes to commit"
-          git pull --rebase origin main
+          
+          # 核心防撞装甲：拉取云端代码。如果出现冲突，无条件保留本地刚刚测好的文件 (-X ours)
+          git pull origin main --rebase=false -X ours || true
+          
+          # 强力推送到云端
           git push
