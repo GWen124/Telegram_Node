@@ -125,7 +125,7 @@ for p in valid_proxies:
     else:
         country_counters[country] += 1
         
-    # 👉 这里的格式已经修改为：国家名 + 空格 + 编号 (例如: 香港 01)
+    # 重命名格式：国家 编号 (例如: 香港 01)
     new_name = f"{country} {country_counters[country]:02d}"
     p['name'] = new_name
     print(f"  🏷️  重命名: {server} -> {new_name}")
