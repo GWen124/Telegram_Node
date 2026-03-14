@@ -31,6 +31,14 @@ proxies:
   type: ss
   cipher: chacha20-ietf-poly1305
   password: hbGrpfvNrJsUmKmPbR3iY2
+- name: 美国 02
+  server: 82.198.246.97
+  port: 180
+  type: vmess
+  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
+  alterId: 0
+  cipher: auto
+  tls: false
 - name: 荷兰 01
   server: switcher-nick-croquet.freesocks.work
   port: 443
@@ -191,6 +199,7 @@ proxy-groups:
   - 法国 01
   - 法国 02
   - 美国 01
+  - 美国 02
   - 荷兰 01
   - 法国 03
   - 加拿大 01
