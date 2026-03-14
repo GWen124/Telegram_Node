@@ -16,7 +16,7 @@ CHANNELS = [
     'https://t.me/s/freeVPNjd'
 ]
 
-# 这里的列表会被脚本自动修改！
+# 这里的列表会被脚本自动修改净化！
 EXTERNAL_URLS = [
     "https://raw.githubusercontent.com/ovmvo/FreeSub/refs/heads/main/sub/permanent/mihomo.yaml",
     "https://raw.githubusercontent.com/clashv2ray-hub/v2rayfree/refs/heads/main/v2ray.txt",
@@ -33,19 +33,34 @@ DYNAMIC_REPOS = [
 # 2. 核心探测与统计函数
 # ==========================================
 def count_nodes_in_text(text, is_yaml=False):
-    try:
-        if is_yaml:
+    """智能统计文本中的节点数量（兼容无扩展名的 YAML 和 Base64）"""
+    # 1. 如果包含 'proxies:' 关键字，强制视为 YAML 解析
+    if is_yaml or 'proxies:' in text:
+        try:
             data = yaml.safe_load(text)
             if isinstance(data, dict) and 'proxies' in data:
                 return len(data['proxies'])
-        else:
-            try:
-                dec = base64.b64decode(text).decode('utf-8', errors='ignore')
-                return len(re.findall(r'(vmess|vless|ss|ssr|trojan|hysteria2)://', dec))
-            except:
-                return len(re.findall(r'(vmess|vless|ss|ssr|trojan|hysteria2)://', text))
+        except:
+            pass
+            
+    # 2. 尝试明文链接匹配
+    try:
+        matches = re.findall(r'(vmess|vless|ss|ssr|trojan|hysteria2)://', text)
+        if len(matches) > 0:
+            return len(matches)
     except:
         pass
+        
+    # 3. 尝试 Base64 解码后匹配
+    try:
+        padded_text = text.strip() + "=" * ((4 - len(text.strip()) % 4) % 4)
+        dec = base64.b64decode(padded_text).decode('utf-8', errors='ignore')
+        matches = re.findall(r'(vmess|vless|ss|ssr|trojan|hysteria2)://', dec)
+        if len(matches) > 0:
+            return len(matches)
+    except:
+        pass
+        
     return 0
 
 def get_and_heal_tg_nodes():
@@ -113,14 +128,12 @@ def remove_dead_links_from_code(valid_urls):
         with open(__file__, 'r', encoding='utf-8') as f:
             content = f.read()
 
-        # 修复：使用合法的多行字符串拼接
         if not valid_urls:
             new_list_str = "EXTERNAL_URLS = []"
         else:
             urls_formatted = ",\n    ".join([f'"{url}"' for url in valid_urls])
             new_list_str = f"EXTERNAL_URLS = [\n    {urls_formatted}\n]"
 
-        # 使用正则替换掉旧的列表
         new_content = re.sub(r'EXTERNAL_URLS\s*=\s*\[.*?\]', new_list_str, content, flags=re.DOTALL)
 
         if new_content != content:
@@ -132,7 +145,7 @@ def remove_dead_links_from_code(valid_urls):
 
 def check_external_links():
     print("\n" + "="*50)
-    print("🔗 阶段 2: 探测固定外部订阅源 (含自动清理死链)")
+    print("🔗 阶段 2: 探测固定外部订阅源")
     print("="*50)
     valid_urls = []
     dead_urls = []
@@ -156,7 +169,6 @@ def check_external_links():
             print(f"  [❌ 超时] 无法连接 <- {url} (标记为死链)")
             dead_urls.append(url)
 
-    # 如果发现了死链，触发自我净化
     if dead_urls:
         remove_dead_links_from_code(valid_urls)
             
@@ -164,38 +176,55 @@ def check_external_links():
 
 def get_dynamic_links():
     print("\n" + "="*50)
-    print("📅 阶段 3: 智能嗅探日期动态仓库 (${datePath})")
+    print("📅 阶段 3: 智能嗅探动态仓库 (API & README 双引擎)")
     print("="*50)
     dynamic_urls = []
-    tz = timezone(timedelta(hours=8)) 
-    today = datetime.now(tz)
-    yesterday = today - timedelta(days=1)
-    found_repos = set()
     
-    for date_obj in [today, yesterday]:
-        date_path = date_obj.strftime("%Y/%m/%Y%m%d")
-        for repo in DYNAMIC_REPOS:
-            if repo in found_repos: continue 
+    for repo in DYNAMIC_REPOS:
+        repo_success = False
+        
+        # 引擎 1: 暴力请求 GitHub API，直接拉取根目录最新文件
+        try:
+            api_url = f"https://api.github.com/repos/{repo}/contents"
+            res = requests.get(api_url, timeout=5)
+            if res.status_code == 200:
+                items = res.json()
+                files = [i for i in items if i['type'] == 'file' and i['name'] not in ('README.md', 'LICENSE', '.gitignore')]
+                files.sort(key=lambda x: x['name'], reverse=True)
+                
+                if files:
+                    latest_url = files[0]['download_url']
+                    check_res = requests.get(latest_url, timeout=5)
+                    count = count_nodes_in_text(check_res.text, latest_url.endswith(('.yaml', '.yml')))
+                    if count > 0:
+                        print(f"  [✅ API命中] 发现 {count:3} 个节点 <- {latest_url}")
+                        dynamic_urls.append(latest_url)
+                        repo_success = True
+        except Exception as e:
+            pass
             
-            possible_paths = [
-                f"node_list/{date_path}.yaml",
-                f"node_list/{date_path}.txt",
-                f"{date_path}.yaml",
-                f"{date_path}.txt"
-            ]
-            for path in possible_paths:
-                test_url = f"https://raw.githubusercontent.com/{repo}/main/{path}"
-                try:
-                    res = requests.get(test_url, timeout=5)
-                    if res.status_code == 200:
-                        is_yaml = test_url.endswith('.yaml')
-                        count = count_nodes_in_text(res.text, is_yaml)
+        # 引擎 2: 若 API 受限，退回解析 README.md
+        if not repo_success:
+            try:
+                readme_url = f"https://raw.githubusercontent.com/{repo}/main/README.md"
+                res = requests.get(readme_url, timeout=5)
+                if res.status_code == 200:
+                    pattern = r"https://raw\.githubusercontent\.com/" + re.escape(repo) + r"/main/[a-zA-Z0-9_.-]+"
+                    matches = re.findall(pattern, res.text)
+                    valid_links = []
+                    for m in matches:
+                        if not m.endswith('.md') and m not in valid_links:
+                            valid_links.append(m)
+                    
+                    for link in valid_links[:2]:
+                        check_res = requests.get(link, timeout=5)
+                        count = count_nodes_in_text(check_res.text, link.endswith(('.yaml', '.yml')))
                         if count > 0:
-                            print(f"  [✅ 命中] 发现 {count:3} 个节点 <- {test_url}")
-                            dynamic_urls.append(test_url)
-                            found_repos.add(repo)
-                            break 
-                except: pass
+                            print(f"  [✅ 文档命中] 发现 {count:3} 个节点 <- {link}")
+                            dynamic_urls.append(link)
+                            break
+            except Exception as e:
+                print(f"  [❌ 嗅探失败] 无法获取 {repo} 的节点")
                 
     return dynamic_urls
 
