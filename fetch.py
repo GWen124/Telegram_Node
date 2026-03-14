@@ -18,7 +18,6 @@ CHANNELS = [
 
 # 这里的列表会被脚本自动修改！
 EXTERNAL_URLS = [
-    "https://nodesfree.github.io/v2raynode/subscribe/v2ray.txt",
     "https://raw.githubusercontent.com/ovmvo/FreeSub/refs/heads/main/sub/permanent/mihomo.yaml",
     "https://raw.githubusercontent.com/clashv2ray-hub/v2rayfree/refs/heads/main/v2ray.txt",
     "https://raw.githubusercontent.com/shaoyouvip/free/refs/heads/main/all.yaml",
@@ -116,12 +115,19 @@ def remove_dead_links_from_code(valid_urls):
 
         # 生成新的代码块
         if not valid_urls:
-            new_list_str = "EXTERNAL_URLS = []"
+            new_list_str = "EXTERNAL_URLS = [
+    "https://raw.githubusercontent.com/ovmvo/FreeSub/refs/heads/main/sub/permanent/mihomo.yaml",
+    "https://raw.githubusercontent.com/clashv2ray-hub/v2rayfree/refs/heads/main/v2ray.txt",
+    "https://raw.githubusercontent.com/shaoyouvip/free/refs/heads/main/all.yaml",
+    "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub"
+]"
         else:
-            new_list_str = "EXTERNAL_URLS = [\n"
-            for url in valid_urls:
-                new_list_str += f'    "{url}",\n'
-            new_list_str = new_list_str.rstrip(",\n") + "\n]"
+            new_list_str = "EXTERNAL_URLS = [
+    "https://raw.githubusercontent.com/ovmvo/FreeSub/refs/heads/main/sub/permanent/mihomo.yaml",
+    "https://raw.githubusercontent.com/clashv2ray-hub/v2rayfree/refs/heads/main/v2ray.txt",
+    "https://raw.githubusercontent.com/shaoyouvip/free/refs/heads/main/all.yaml",
+    "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub"
+]"
 
         # 使用正则替换掉旧的列表
         new_content = re.sub(r'EXTERNAL_URLS\s*=\s*\[.*?\]', new_list_str, content, flags=re.DOTALL)

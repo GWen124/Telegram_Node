@@ -32,6 +32,20 @@ proxies:
   cipher: chacha20-ietf-poly1305
   password: hbGrpfvNrJsUmKmPbR3iY2
 - name: Internet_004
+  server: 82.198.246.97
+  port: 180
+  type: vmess
+  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
+  alterId: 0
+  cipher: auto
+  tls: false
+- name: Internet_005
+  server: switcher-nick-croquet.freesocks.work
+  port: 443
+  type: ss
+  cipher: chacha20-ietf-poly1305
+  password: RFK38Cg7APneSB5cWDcpbm
+- name: Internet_006
   server: 2001:bc8:32d7:302::10
   port: 44579
   type: vmess
@@ -44,14 +58,13 @@ proxies:
     path: /?BIA_TELEGRAM@AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1
     headers:
       Host: TURK1.NET.NET
-- name: Internet_005
-  server: 58.152.25.253
+- name: Internet_007
+  server: 141.98.101.182
   port: 443
-  type: trojan
-  password: BxceQaOe
-  sni: t.me%2Fripaojiedian
-  skip-cert-verify: true
-- name: Internet_006
+  type: ss
+  cipher: aes-128-gcm
+  password: shadowsocks
+- name: Internet_008
   server: 80.173.231.254
   port: 12420
   type: trojan
@@ -67,5 +80,7 @@ proxy-groups:
   - Internet_004
   - Internet_005
   - Internet_006
+  - Internet_007
+  - Internet_008
   url: https://www.gstatic.com/generate_204
   interval: 3600
