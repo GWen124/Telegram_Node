@@ -33,7 +33,6 @@ DYNAMIC_REPOS = [
 # 2. 核心探测与统计函数
 # ==========================================
 def count_nodes_in_text(text, is_yaml=False):
-    """智能统计文本中的节点数量（兼容无扩展名的 YAML 和 Base64）"""
     if is_yaml or 'proxies:' in text:
         try:
             data = yaml.safe_load(text)
@@ -120,7 +119,6 @@ def get_and_heal_tg_nodes():
     return clean_nodes
 
 def remove_dead_links_from_code(valid_urls):
-    """读取自身源码，替换 EXTERNAL_URLS 列表，实现自我进化"""
     try:
         with open(__file__, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -241,7 +239,9 @@ if __name__ == "__main__":
     
     all_urls = ["http://127.0.0.1:8000/tg_nodes.txt"] + valid_external_urls + dynamic_urls
     encoded_url = urllib.parse.quote("|".join(all_urls))
-    sub_api = f"http://127.0.0.1:25500/sub?target=clash&url={encoded_url}&insert=false"
+    
+    # 核心修改：改为 clash-meta 目标以支持 Hysteria2 等新协议
+    sub_api = f"http://127.0.0.1:25500/sub?target=clash-meta&url={encoded_url}&insert=false"
     
     with open("sub_api_url.txt", "w") as f:
         f.write(sub_api)
