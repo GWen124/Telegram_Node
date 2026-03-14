@@ -6,6 +6,7 @@ import urllib.parse
 import sys
 import hashlib
 import json
+import re
 
 try:
     with open("clash_nodes.yaml", "r", encoding='utf-8') as f:
@@ -31,19 +32,21 @@ seen_hashes = set()
 seen_names = set() 
 
 for p in raw_proxies:
-    # --- 防内核崩溃装甲：拦截明显损坏的垃圾节点 ---
     try:
-        if 'server' not in p or not p['server']: continue
-        if 'port' not in p: continue
+        # 第一层装甲：基础字段严苛检查，拦截肉眼可见的垃圾节点
+        if 'server' not in p or not str(p['server']).strip(): continue
+        if 'port' not in p or not str(p['port']).strip(): continue
+        if 'type' not in p or not str(p['type']).strip(): continue
+        
         port = int(p['port'])
         if not (1 <= port <= 65535): continue
-        if p.get('type') in ['vless', 'vmess', 'trojan']:
-            # 简单的长度校验，拦截残缺的 UUID 导致内核致命崩溃
-            if 'uuid' in p and len(str(p['uuid'])) < 10: continue
-            if 'password' in p and len(str(p['password'])) < 2: continue
+        
+        ptype = p.get('type')
+        if ptype in ['vless', 'vmess'] and ('uuid' not in p or len(str(p['uuid'])) < 5): continue
+        if ptype == 'trojan' and ('password' not in p or len(str(p['password'])) < 1): continue
+        if ptype == 'hysteria2' and ('password' not in p): continue
     except:
-        continue # 直接抛弃导致验证失败的节点
-    # -----------------------------------------------
+        continue
 
     p_config = {k: v for k, v in p.items() if k != 'name'}
     config_str = json.dumps(p_config, sort_keys=True)
@@ -52,7 +55,7 @@ for p in raw_proxies:
     if config_hash not in seen_hashes:
         seen_hashes.add(config_hash)
         
-        # 防重名机制，保证 YAML 配置合法
+        # 防重名机制，保证 YAML 配置在内核里绝对合法
         original_name = str(p.get('name', 'Unnamed'))
         new_name = original_name
         counter = 1
@@ -64,7 +67,12 @@ for p in raw_proxies:
         
         proxies.append(p)
 
-print(f"✅ 全局去重完毕: 抓取总计 {len(raw_proxies)} 个，安全过滤与去重后剩余 {len(proxies)} 个物理独立节点。")
+print(f"✅ 全局去重完毕: 抓取总计 {len(raw_proxies)} 个，初步安全过滤后剩余 {len(proxies)} 个独立节点。")
+
+# ==========================================
+# 2. 内核级“预检与自我净化” (核心防崩溃黑科技)
+# ==========================================
+print("\n🛡️ 启动 Mihomo 内核级预检机制，查杀导致崩溃的毒瘤节点...")
 
 mihomo_config = {
     "allow-lan": True,
@@ -72,30 +80,54 @@ mihomo_config = {
     "external-controller": "127.0.0.1:9090",
     "proxies": proxies
 }
-with open("mihomo_config.yaml", "w", encoding='utf-8') as f:
-    yaml.dump(mihomo_config, f, allow_unicode=True)
 
-# 启动 Mihomo 并捕获它的错误输出，精准定位崩溃元凶
-with open("mihomo_error.log", "w") as err_file:
-    process = subprocess.Popen(["./mihomo", "-d", ".", "-f", "mihomo_config.yaml"], stdout=subprocess.DEVNULL, stderr=err_file)
+max_retries = 30
+for attempt in range(max_retries):
+    mihomo_config["proxies"] = proxies
+    with open("mihomo_config.yaml", "w", encoding='utf-8') as f:
+        yaml.dump(mihomo_config, f, allow_unicode=True)
 
-time.sleep(5) # 给几百个节点留出启动时间
+    # 使用 -t 参数进行配置预检，完美捕获报错日志
+    result = subprocess.run(["./mihomo", "-d", ".", "-f", "mihomo_config.yaml", "-t"], capture_output=True, text=True)
 
-# 检测内核是否已经崩溃闪退
-if process.poll() is not None:
-    with open("mihomo_error.log", "r") as err_file:
-        error_msg = err_file.read()
-    print(f"\n❌ 严重致命错误: 发现格式异常的野生节点，导致 Mihomo 内核启动崩溃！")
-    print(f"================== 内核报错日志 ==================")
-    print(error_msg)
-    print(f"==================================================")
-    sys.exit(1)
+    if result.returncode == 0:
+        print(f"✅ 内核预检完全通过！最终剩余绝对安全节点: {len(proxies)} 个。")
+        break
+    else:
+        error_log = result.stdout + result.stderr
+        culprit = None
+        
+        # 尝试通过正则捕获报错中的节点名
+        matches = re.findall(r'\[([^\]]+)\]', error_log)
+        for m in matches:
+            if any(p['name'] == m for p in proxies):
+                culprit = m
+                break
+        
+        # 暴力匹配兜底
+        if not culprit:
+            for p in proxies:
+                if p['name'] in error_log:
+                    culprit = p['name']
+                    break
+        
+        if culprit:
+            print(f"  [⚠️ 预检拦截] 发现毒瘤节点 [{culprit}]，已将其从配置中永久剔除！(循环重试 {attempt+1}/{max_retries})")
+            proxies = [p for p in proxies if p['name'] != culprit]
+        else:
+            print(f"❌ 无法自动定位损坏节点。内核真实报错细节:\n{error_log[-800:]}")
+            print("\n⚠️ 启用【安全熔断模式】：由于配置严重损坏，为防止动作中断，强制丢弃大部分节点，仅保留前 100 个尝试。")
+            proxies = proxies[:100]
+            break
+
+# ==========================================
+# 3. 正式启动测速
+# ==========================================
+print("\n🚀 预检完成，正式启动 Mihomo 内核进行极限测速...")
+process = subprocess.Popen(["./mihomo", "-d", ".", "-f", "mihomo_config.yaml"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+time.sleep(4) 
 
 valid_proxies = []
-
-# ==========================================
-# 2. 测速机制
-# ==========================================
 MAX_DELAY = 2500 
 
 def test_proxy(name, retries=2):
@@ -132,7 +164,7 @@ for p in proxies:
 process.terminate()
 
 # ==========================================
-# 3. 智能归属地查询与重命名
+# 4. 智能归属地查询与重命名
 # ==========================================
 print("\n正在查询节点 IP 归属地并重新命名...")
 country_counters = {}
@@ -168,7 +200,7 @@ for p in valid_proxies:
     print(f"  🏷️  重命名: {server} -> {new_name}")
 
 # ==========================================
-# 4. 生成最终配置文件
+# 5. 生成最终配置文件
 # ==========================================
 final_output = {
     "proxies": valid_proxies,
