@@ -1,5 +1,5 @@
 proxies:
-- name: Internet_001
+- name: 法国 01
   server: 2001:bc8:32d7:302::14
   port: 44579
   type: vmess
@@ -12,7 +12,7 @@ proxies:
     path: /?BIA_TELEGRAM@AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1?ed=2560
     headers:
       Host: TABRIZ.NET
-- name: Internet_002
+- name: 法国 02
   server: 2001:bc8:32d7:302::11
   port: 44579
   type: vmess
@@ -25,15 +25,19 @@ proxies:
     path: /?BIA_TELEGRAM@AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1?ed=2560
     headers:
       Host: TABRIZ.NET
-- name: Internet_003
-  server: 82.198.246.97
-  port: 180
-  type: vmess
-  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
-  alterId: 0
-  cipher: auto
-  tls: false
-- name: Internet_004
+- name: 美国 01
+  server: tinkered-pennies-puppies.freesocks.work
+  port: 443
+  type: ss
+  cipher: chacha20-ietf-poly1305
+  password: hbGrpfvNrJsUmKmPbR3iY2
+- name: 荷兰 01
+  server: switcher-nick-croquet.freesocks.work
+  port: 443
+  type: ss
+  cipher: chacha20-ietf-poly1305
+  password: RFK38Cg7APneSB5cWDcpbm
+- name: 法国 03
   server: 2001:bc8:32d7:302::10
   port: 44579
   type: vmess
@@ -46,7 +50,7 @@ proxies:
     path: /?BIA_TELEGRAM@AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1_AZARBAYJAB1
     headers:
       Host: TURK1.NET.NET
-- name: Internet_005
+- name: 加拿大 01
   server: another.py.kawaii520.icu
   port: 443
   type: vmess
@@ -60,7 +64,7 @@ proxies:
     path: /another
     headers:
       Host: another-sg.kawaii520.icu
-- name: Internet_006
+- name: 加拿大 02
   server: another.py.kawaii520.icu
   port: 443
   type: vmess
@@ -74,7 +78,7 @@ proxies:
     path: /another
     headers:
       Host: another-de.kawaii520.icu
-- name: Internet_007
+- name: 加拿大 03
   server: another.py.kawaii520.icu
   port: 443
   type: vmess
@@ -88,7 +92,7 @@ proxies:
     path: /another
     headers:
       Host: another-zl.kawaii520.icu
-- name: Internet_008
+- name: 加拿大 04
   server: another.py.kawaii520.icu
   port: 443
   type: vmess
@@ -102,13 +106,13 @@ proxies:
     path: /another
     headers:
       Host: another-us.kawaii520.icu
-- name: Internet_009
+- name: 挪威 01
   server: 80.173.231.254
   port: 12420
   type: trojan
   password: wp9IsiY82uQhcmgNC1eoBM
   sni: www.semanticstaplegun.click
-- name: Internet_010
+- name: 香港 01
   server: 58.152.25.253
   port: 443
   type: trojan
@@ -119,15 +123,16 @@ proxy-groups:
 - name: 🚀 自动选择
   type: url-test
   proxies:
-  - Internet_001
-  - Internet_002
-  - Internet_003
-  - Internet_004
-  - Internet_005
-  - Internet_006
-  - Internet_007
-  - Internet_008
-  - Internet_009
-  - Internet_010
+  - 法国 01
+  - 法国 02
+  - 美国 01
+  - 荷兰 01
+  - 法国 03
+  - 加拿大 01
+  - 加拿大 02
+  - 加拿大 03
+  - 加拿大 04
+  - 挪威 01
+  - 香港 01
   url: https://www.gstatic.com/generate_204
   interval: 3600
