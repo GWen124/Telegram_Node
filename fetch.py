@@ -16,17 +16,30 @@ CHANNELS = [
     'https://t.me/s/freeVPNjd'
 ]
 
-# 这里的列表会被脚本自动修改净化！
+# 引入了你提供的所有全新宝藏节点库，脚本会自动清理死链
 EXTERNAL_URLS = [
     "https://raw.githubusercontent.com/ovmvo/FreeSub/refs/heads/main/sub/permanent/mihomo.yaml",
     "https://raw.githubusercontent.com/clashv2ray-hub/v2rayfree/refs/heads/main/v2ray.txt",
     "https://raw.githubusercontent.com/shaoyouvip/free/refs/heads/main/all.yaml",
-    "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub"
+    "https://raw.githubusercontent.com/Pawdroid/Free-servers/refs/heads/main/sub",
+    "https://raw.githubusercontent.com/PuddinCat/BestClash/refs/heads/main/proxies.yaml",
+    "https://raw.githubusercontent.com/telegeam/freenode/refs/heads/master/v2ray.txt",
+    "https://raw.githubusercontent.com/telegeam/freenode/refs/heads/master/clash.yaml",
+    "https://raw.githubusercontent.com/ccpthisbigdog/freedomchina/refs/heads/main/subdom.txt",
+    "https://raw.githubusercontent.com/ccpthisbigdog/freedomchina/refs/heads/main/clab.yaml",
+    "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt",
+    "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.meta.yml",
+    "https://raw.githubusercontent.com/ripaojiedian/freenode/main/clash",
+    "https://raw.githubusercontent.com/ripaojiedian/freenode/main/sub",
+    "https://raw.githubusercontent.com/free18/v2ray/refs/heads/main/c.yaml",
+    "https://raw.githubusercontent.com/free18/v2ray/refs/heads/main/v.txt"
 ]
 
+# 加入了 Jsnzkpg 仓库，API引擎会通吃里面的多个文件
 DYNAMIC_REPOS = [
     "free-nodes/v2rayfree", 
-    "free-nodes/clashfree"
+    "free-nodes/clashfree",
+    "Jsnzkpg/Jsnzkpg"
 ]
 
 # ==========================================
@@ -38,24 +51,19 @@ def count_nodes_in_text(text, is_yaml=False):
             data = yaml.safe_load(text)
             if isinstance(data, dict) and 'proxies' in data:
                 return len(data['proxies'])
-        except:
-            pass
+        except: pass
             
     try:
         matches = re.findall(r'(vmess|vless|ss|ssr|trojan|hysteria2|tuic)://', text)
-        if len(matches) > 0:
-            return len(matches)
-    except:
-        pass
+        if len(matches) > 0: return len(matches)
+    except: pass
         
     try:
         padded_text = text.strip() + "=" * ((4 - len(text.strip()) % 4) % 4)
         dec = base64.b64decode(padded_text).decode('utf-8', errors='ignore')
         matches = re.findall(r'(vmess|vless|ss|ssr|trojan|hysteria2|tuic)://', dec)
-        if len(matches) > 0:
-            return len(matches)
-    except:
-        pass
+        if len(matches) > 0: return len(matches)
+    except: pass
         
     return 0
 
@@ -140,13 +148,13 @@ def remove_dead_links_from_code(valid_urls):
 
 def check_external_links():
     print("\n" + "="*50)
-    print("🔗 阶段 2: 探测固定外部订阅源")
+    print("🔗 阶段 2: 探测固定外部订阅源 (包含最新加入的仓库)")
     print("="*50)
     valid_urls = []
     dead_urls = []
     
     for url in EXTERNAL_URLS:
-        is_yaml = url.endswith('.yaml') or url.endswith('.yml')
+        is_yaml = url.endswith('.yaml') or url.endswith('.yml') or '/clash' in url or 'proxies' in url
         try:
             res = requests.get(url, timeout=10)
             if res.status_code == 200:
@@ -185,14 +193,19 @@ def get_dynamic_links():
                 files = [i for i in items if i['type'] == 'file' and i['name'] not in ('README.md', 'LICENSE', '.gitignore')]
                 files.sort(key=lambda x: x['name'], reverse=True)
                 
-                if files:
-                    latest_url = files[0]['download_url']
+                # 升级：允许从单个动态仓库抓取前 4 个有效文件 (完美适配 Jsnzkpg 仓库)
+                hit_count = 0
+                for file_info in files:
+                    latest_url = file_info['download_url']
                     check_res = requests.get(latest_url, timeout=5)
                     count = count_nodes_in_text(check_res.text, latest_url.endswith(('.yaml', '.yml')))
                     if count > 0:
                         print(f"  [✅ API命中] 发现 {count:3} 个节点 <- {latest_url}")
                         dynamic_urls.append(latest_url)
                         repo_success = True
+                        hit_count += 1
+                        if hit_count >= 4: # 最多抓4个防拥堵
+                            break 
         except Exception as e:
             pass
             
@@ -239,9 +252,7 @@ if __name__ == "__main__":
     
     all_urls = ["http://127.0.0.1:8000/tg_nodes.txt"] + valid_external_urls + dynamic_urls
     encoded_url = urllib.parse.quote("|".join(all_urls))
-    
-    # 核心修改：改为 clash-meta 目标以支持 Hysteria2 等新协议
-    sub_api = f"http://127.0.0.1:25500/sub?target=clash-meta&url={encoded_url}&insert=false"
+    sub_api = f"http://127.0.0.1:25500/sub?target=clash&url={encoded_url}&insert=false"
     
     with open("sub_api_url.txt", "w") as f:
         f.write(sub_api)
