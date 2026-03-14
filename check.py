@@ -7,6 +7,7 @@ import sys
 import hashlib
 import json
 import re
+import concurrent.futures
 
 try:
     with open("clash_nodes.yaml", "r", encoding='utf-8') as f:
@@ -31,7 +32,7 @@ proxies = []
 seen_hashes = set()
 seen_names = set() 
 
-# 核心修补 1：合法的代理类型白名单
+# 合法的代理类型白名单
 VALID_TYPES = {'ss', 'ssr', 'vmess', 'vless', 'trojan', 'hysteria', 'hysteria2', 'tuic', 'wireguard', 'http', 'https', 'socks5', 'snell'}
 
 for p in raw_proxies:
@@ -45,7 +46,6 @@ for p in raw_proxies:
         if not (1 <= port <= 65535): continue
         
         ptype = str(p.get('type', '')).lower()
-        # 拦截导致内核崩溃的任何非法类型 (例如 anytls)
         if ptype not in VALID_TYPES: continue
         
         if ptype in ['vless', 'vmess'] and ('uuid' not in p or len(str(p['uuid'])) < 5): continue
@@ -75,7 +75,7 @@ for p in raw_proxies:
 print(f"✅ 全局去重完毕: 抓取总计 {len(raw_proxies)} 个，初步安全过滤后剩余 {len(proxies)} 个独立节点。")
 
 # ==========================================
-# 2. 内核级“预检与自我净化” (防崩溃黑科技)
+# 2. 内核级“预检与自我净化” 
 # ==========================================
 print("\n🛡️ 启动 Mihomo 内核级预检机制，查杀导致崩溃的毒瘤节点...")
 
@@ -101,14 +101,12 @@ for attempt in range(max_retries):
         error_log = result.stdout + result.stderr
         culprit = None
         
-        # 尝试通过正则捕获报错中的节点名
         matches = re.findall(r'\[([^\]]+)\]', error_log)
         for m in matches:
             if any(p['name'] == m for p in proxies):
                 culprit = m
                 break
                 
-        # 核心修补 2：如果内核报的是 "proxy 200:" 这种索引错误，根据索引精准追杀
         if not culprit:
             match_index = re.search(r'proxy (\d+):', error_log)
             if match_index:
@@ -116,7 +114,6 @@ for attempt in range(max_retries):
                 if 0 <= idx < len(proxies):
                     culprit = proxies[idx]['name']
 
-        # 暴力匹配兜底
         if not culprit:
             for p in proxies:
                 if p['name'] in error_log:
@@ -133,16 +130,16 @@ for attempt in range(max_retries):
             break
 
 # ==========================================
-# 3. 正式启动测速
+# 3. 多线程并发测速 (超级加速版)
 # ==========================================
-print("\n🚀 预检完成，正式启动 Mihomo 内核进行极限测速...")
+print("\n🚀 预检完成，正式启动 Mihomo 内核进行并发极限测速...")
 process = subprocess.Popen(["./mihomo", "-d", ".", "-f", "mihomo_config.yaml"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 time.sleep(4) 
 
-valid_proxies = []
 MAX_DELAY = 2500 
 
-def test_proxy(name, retries=2):
+def test_proxy(p, retries=2):
+    name = p['name']
     encoded_name = urllib.parse.quote(name)
     test_url = f"http://127.0.0.1:9090/proxies/{encoded_name}/delay?timeout={MAX_DELAY}&url=https://www.gstatic.com/generate_204"
     
@@ -152,33 +149,41 @@ def test_proxy(name, retries=2):
             if res.status_code == 200 and "delay" in res.json():
                 delay = res.json()['delay']
                 if delay > 0:
-                    return delay
+                    return p, delay
         except:
             pass
         if attempt < retries - 1:
             time.sleep(0.5)
             
-    return 0
+    return p, 0
 
-print(f"开始进行【双重验证】连通性测试 (限时 {MAX_DELAY}ms)...")
-for p in proxies:
-    original_name = p['name']
-    delay = test_proxy(original_name)
+valid_proxies = []
+print(f"开始进行【双重验证】并发连通性测试 (限时 {MAX_DELAY}ms，50 线程狂飙)...")
+
+# 核心升级：使用 ThreadPoolExecutor 开启 50 个并发线程同时测速
+with concurrent.futures.ThreadPoolExecutor(max_workers=50) as executor:
+    # 提交所有测速任务
+    future_to_proxy = {executor.submit(test_proxy, p): p for p in proxies}
     
-    if 0 < delay <= MAX_DELAY:
-        print(f"[✅ 保留] {original_name} - 延迟: {delay}ms")
-        valid_proxies.append(p)
-    elif delay > MAX_DELAY:
-        print(f"[⚠️ 太慢剔除] {original_name} - 延迟: {delay}ms")
-    else:
-        print(f"[❌ 彻底死链] {original_name} - 测速超时或失效")
+    # 异步收集结果，谁先测完就先处理谁
+    for future in concurrent.futures.as_completed(future_to_proxy):
+        p, delay = future.result()
+        original_name = p['name']
+        
+        if 0 < delay <= MAX_DELAY:
+            print(f"[✅ 保留] {original_name} - 延迟: {delay}ms")
+            valid_proxies.append(p)
+        elif delay > MAX_DELAY:
+            print(f"[⚠️ 太慢剔除] {original_name} - 延迟: {delay}ms")
+        else:
+            print(f"[❌ 彻底死链] {original_name} - 测速超时或失效")
 
 process.terminate()
 
 # ==========================================
 # 4. 智能归属地查询与重命名
 # ==========================================
-print("\n正在查询节点 IP 归属地并重新命名...")
+print("\n正在查询存活节点 IP 归属地并重新命名...")
 country_counters = {}
 ip_cache = {} 
 
@@ -191,7 +196,8 @@ def get_country(server):
             country = res.get('country', '未知地区')
             country = country.replace("中国香港", "香港").replace("中国台湾", "台湾").replace("中国澳门", "澳门").replace("美利坚合众国", "美国")
             ip_cache[server] = country
-            time.sleep(0.1) 
+            # 免费接口限频 45次/分钟，为了防止被封，每个新 IP 查询后停顿 1.5 秒
+            time.sleep(1.5) 
             return country
     except:
         pass
@@ -214,6 +220,9 @@ for p in valid_proxies:
 # ==========================================
 # 5. 生成最终配置文件
 # ==========================================
+# 按照延迟对存活节点进行排序，越快的排在越前面
+valid_proxies.sort(key=lambda x: x.get('name', ''))
+
 final_output = {
     "proxies": valid_proxies,
     "proxy-groups": [
