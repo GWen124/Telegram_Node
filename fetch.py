@@ -34,7 +34,6 @@ DYNAMIC_REPOS = [
 # ==========================================
 def count_nodes_in_text(text, is_yaml=False):
     """智能统计文本中的节点数量（兼容无扩展名的 YAML 和 Base64）"""
-    # 1. 如果包含 'proxies:' 关键字，强制视为 YAML 解析
     if is_yaml or 'proxies:' in text:
         try:
             data = yaml.safe_load(text)
@@ -43,19 +42,17 @@ def count_nodes_in_text(text, is_yaml=False):
         except:
             pass
             
-    # 2. 尝试明文链接匹配
     try:
-        matches = re.findall(r'(vmess|vless|ss|ssr|trojan|hysteria2)://', text)
+        matches = re.findall(r'(vmess|vless|ss|ssr|trojan|hysteria2|tuic)://', text)
         if len(matches) > 0:
             return len(matches)
     except:
         pass
         
-    # 3. 尝试 Base64 解码后匹配
     try:
         padded_text = text.strip() + "=" * ((4 - len(text.strip()) % 4) % 4)
         dec = base64.b64decode(padded_text).decode('utf-8', errors='ignore')
-        matches = re.findall(r'(vmess|vless|ss|ssr|trojan|hysteria2)://', dec)
+        matches = re.findall(r'(vmess|vless|ss|ssr|trojan|hysteria2|tuic)://', dec)
         if len(matches) > 0:
             return len(matches)
     except:
@@ -68,7 +65,7 @@ def get_and_heal_tg_nodes():
     print("📡 阶段 1: 抓取 Telegram 频道野生节点")
     print("="*50)
     raw_nodes = []
-    raw_pattern = re.compile(r'(vmess|vless|ss|ssr|trojan|hysteria2)://[^\s\'"<>]+')
+    raw_pattern = re.compile(r'(vmess|vless|ss|ssr|trojan|hysteria2|tuic)://[^\s\'"<>]+')
     sub_pattern = re.compile(r'https?://[^\s\'"<>]+')
     
     for url in CHANNELS:
@@ -182,8 +179,6 @@ def get_dynamic_links():
     
     for repo in DYNAMIC_REPOS:
         repo_success = False
-        
-        # 引擎 1: 暴力请求 GitHub API，直接拉取根目录最新文件
         try:
             api_url = f"https://api.github.com/repos/{repo}/contents"
             res = requests.get(api_url, timeout=5)
@@ -203,7 +198,6 @@ def get_dynamic_links():
         except Exception as e:
             pass
             
-        # 引擎 2: 若 API 受限，退回解析 README.md
         if not repo_success:
             try:
                 readme_url = f"https://raw.githubusercontent.com/{repo}/main/README.md"
