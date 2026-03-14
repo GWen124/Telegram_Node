@@ -59,10 +59,12 @@ jobs:
       - name: 4. Dedup, Test and Rename (check.py)
         run: python check.py
 
-      - name: 5. Commit and Push
+      - name: 5. Commit and Push (保存极速节点)
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Action"
           git add final_sub.yaml tg_nodes.txt
-          git commit -m "Auto update valid nodes: $(date)" || echo "No changes to commit"
+          git commit -m "🚀 Auto update High-Speed nodes: $(date)" || echo "No changes to commit"
+          # 核心修复：在 push 之前先 pull 一下云端的最新变动（如果遇到冲突，优先保留云端修改）
+          git pull --rebase origin main
           git push
