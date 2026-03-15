@@ -1,0 +1,1215 @@
+mixed-port: 7890
+allow-lan: true
+bind-address: '*'
+mode: rule
+log-level: info
+external-controller: 127.0.0.1:9090
+proxies:
+  - name: 官网地址https://kelayun.notepin.co
+    type: vless
+    server: 23.148.20.55
+    port: 443
+    client-fingerprint: chrome
+    tls: true
+    servername: www.apple.com
+    flow: xtls-rprx-vision
+    network: tcp
+    reality-opts:
+      public-key: R0M4F0Di9oppNbz_LRIkF08whSeXbBHMNkAKVq5l-U8
+      short-id: ea80ef
+    uuid: e5130eee-cf44-405e-ce04-25817f961399
+    alterId: 0
+    cipher: ""
+    sni: www.apple.com
+  - name: 下单地址https://kelayun.notepin.co
+    type: anytls
+    server: us1.anliangjifei.top
+    port: 12053
+    password: ae74dd32-c336-4be4-9c15-f6108292b3e5
+    skip-cert-verify: true
+    sni: us1.anliangjifei.top
+  - name: 购买地址https://kelayun.notepin.co
+    type: vless
+    server: 45.145.42.170
+    port: 8005
+    skip-cert-verify: true
+    tls: true
+    servername: sub.mot.ip-ddns.com
+    network: ws
+    ws-opts:
+      headers:
+        Host: sub.mot.ip-ddns.com
+      path: /
+    uuid: 00000000-0000-4000-8000-000000000000
+    alterId: 0
+    cipher: ""
+    flow: ""
+    sni: sub.mot.ip-ddns.com
+  - name: 梯子地址https://kelayun.notepin.co
+    type: vless
+    server: 45.145.42.170
+    port: 8005
+    client-fingerprint: chrome
+    tls: true
+    servername: sub.mot.ip-ddns.com
+    network: ws
+    ws-opts:
+      headers:
+        Host: sub.mot.ip-ddns.com
+      path: /
+    uuid: 00000000-0000-4000-8000-000000000000
+    alterId: 0
+    cipher: ""
+    flow: ""
+    sni: sub.mot.ip-ddns.com
+  - name: 最低月付2块钱1000G流量
+    type: ss
+    server: lm-xx-002.sadaadf--d.com
+    port: 38385
+    cipher: chacha20-ietf-poly1305
+    password: 1a931d29-1a0b-4e7a-bcff-d8b0d2fe5722
+  - name: 最高200元终身无限流量
+    type: ss
+    server: lm-xx-002.sadaadf--d.com
+    port: 10543
+    cipher: chacha20-ietf-poly1305
+    password: 1a931d29-1a0b-4e7a-bcff-d8b0d2fe5722
+  - name: 不限速不限设备
+    type: ss
+    server: lm-xx-002.sadaadf--d.com
+    port: 39445
+    cipher: chacha20-ietf-poly1305
+    password: 1a931d29-1a0b-4e7a-bcff-d8b0d2fe5722
+  - name: 新疆西藏福建可用
+    type: ss
+    server: lm-xx-002.sadaadf--d.com
+    port: 20030
+    cipher: aes-256-gcm
+    password: 1a931d29-1a0b-4e7a-bcff-d8b0d2fe5722
+  - name: 15-🇳🇱NL-ss-300ms
+    type: ss
+    server: lm-xx-002.sadaadf--d.com
+    port: 55732
+    cipher: chacha20-ietf-poly1305
+    password: 1a931d29-1a0b-4e7a-bcff-d8b0d2fe5722
+  - name: 16-🇲🇴MO-ss-208ms
+    type: ss
+    server: lm-xx-002.sadaadf--d.com
+    port: 29655
+    cipher: chacha20-ietf-poly1305
+    password: 1a931d29-1a0b-4e7a-bcff-d8b0d2fe5722
+  - name: 17-🇻🇳VN-ss-179ms
+    type: ss
+    server: lm-xx-002.sadaadf--d.com
+    port: 23688
+    cipher: aes-256-gcm
+    password: 1a931d29-1a0b-4e7a-bcff-d8b0d2fe5722
+  - name: 18-🇧🇷BR-ss-455ms
+    type: ss
+    server: lm-xx-002.sadaadf--d.com
+    port: 27534
+    cipher: aes-256-gcm
+    password: 1a931d29-1a0b-4e7a-bcff-d8b0d2fe5722
+  - name: 19-🇨🇦CA-ss-331ms
+    type: ss
+    server: lm-xx-002.sadaadf--d.com
+    port: 25125
+    cipher: chacha20-ietf-poly1305
+    password: 1a931d29-1a0b-4e7a-bcff-d8b0d2fe5722
+  - name: 20-🇦🇺AU-ss-363ms
+    type: ss
+    server: lm-xx-002.sadaadf--d.com
+    port: 14383
+    cipher: chacha20-ietf-poly1305
+    password: 1a931d29-1a0b-4e7a-bcff-d8b0d2fe5722
+  - name: 21-🇮🇩ID-ss-462ms
+    type: ss
+    server: lm-xx-002.sadaadf--d.com
+    port: 33790
+    cipher: aes-256-gcm
+    password: 1a931d29-1a0b-4e7a-bcff-d8b0d2fe5722
+  - name: 22-🇭🇰HK-ss-230ms
+    type: ss
+    server: aaa.whtjdasha.com
+    port: 59988
+    cipher: chacha20-ietf-poly1305
+    password: ad16bf2c-ca79-4a43-9c4f-13e48b8dfaed
+  - name: 23-🇭🇰HK-ss-144ms
+    type: ss
+    server: bbb.whtjdasha.com
+    port: 47356
+    cipher: chacha20-ietf-poly1305
+    password: ad16bf2c-ca79-4a43-9c4f-13e48b8dfaed
+  - name: 24-🇭🇰HK-ss-268ms
+    type: ss
+    server: aaa.whtjdasha.com
+    port: 40574
+    cipher: chacha20-ietf-poly1305
+    password: ad16bf2c-ca79-4a43-9c4f-13e48b8dfaed
+  - name: 25-🇨🇳TW-ss-116ms
+    type: ss
+    server: bbb.whtjdasha.com
+    port: 13368
+    cipher: chacha20-ietf-poly1305
+    password: ad16bf2c-ca79-4a43-9c4f-13e48b8dfaed
+  - name: 26-🇨🇳TW-ss-139ms
+    type: ss
+    server: aaa.whtjdasha.com
+    port: 56967
+    cipher: chacha20-ietf-poly1305
+    password: ad16bf2c-ca79-4a43-9c4f-13e48b8dfaed
+  - name: 27-🇸🇬SG-ss-481ms
+    type: ss
+    server: aaa.whtjdasha.com
+    port: 54269
+    cipher: chacha20-ietf-poly1305
+    password: ad16bf2c-ca79-4a43-9c4f-13e48b8dfaed
+  - name: 28-🇺🇸US-ss-293ms
+    type: ss
+    server: aaa.whtjdasha.com
+    port: 48147
+    cipher: chacha20-ietf-poly1305
+    password: ad16bf2c-ca79-4a43-9c4f-13e48b8dfaed
+  - name: 29-🇺🇸US-ss-333ms
+    type: ss
+    server: bbb.whtjdasha.com
+    port: 42794
+    cipher: chacha20-ietf-poly1305
+    password: ad16bf2c-ca79-4a43-9c4f-13e48b8dfaed
+  - name: 30-🇰🇷KR-ss-351ms
+    type: ss
+    server: aaa.whtjdasha.com
+    port: 54506
+    cipher: chacha20-ietf-poly1305
+    password: ad16bf2c-ca79-4a43-9c4f-13e48b8dfaed
+  - name: 31-🇸🇦SA-ss-401ms
+    type: ss
+    server: lm-xx-002.sadaadf--d.com
+    port: 44459
+    cipher: chacha20-ietf-poly1305
+    password: 1a931d29-1a0b-4e7a-bcff-d8b0d2fe5722
+  - name: 32-🇳🇱NL-vless-259ms
+    type: vless
+    server: 143.20.236.51
+    port: 443
+    client-fingerprint: chrome
+    tls: true
+    servername: yahoo.com
+    flow: xtls-rprx-vision
+    network: tcp
+    reality-opts:
+      public-key: e2RLf57Li_-MDZGE9ss1BWPgP54mqRb5PfXhW2jcVVg
+      short-id: c39cc7310a
+    uuid: d65cc14c-f53f-4fe2-b262-97856601319c
+  - name: 33-🇺🇸US-vless-277ms
+    type: vless
+    server: 157.254.223.44
+    port: 18959
+    client-fingerprint: chrome
+    tls: true
+    servername: itunes.apple.com
+    network: tcp
+    reality-opts:
+      public-key: -hwVEdgFkvjku8ESuDoAA7id5yGGv_zXBvBW_RdhmHA
+      short-id: d557c6895d014075
+    uuid: d0b3e27d-bbfc-4a3b-8e60-6973de8fcefa
+  - name: 34-🇫🇮FI-vless-214ms
+    type: vless
+    server: 45.145.42.170
+    port: 8005
+    client-fingerprint: chrome
+    tls: true
+    servername: sub.mot.ip-ddns.com
+    network: ws
+    ws-opts:
+      headers:
+        Host: sub.mot.ip-ddns.com
+      path: /
+    uuid: 00000000-0000-4000-8000-000000000000
+  - name: 35-🇳🇱NL-vless-229ms
+    type: vless
+    server: 143.20.236.51
+    port: 443
+    client-fingerprint: chrome
+    tls: true
+    servername: yahoo.com
+    flow: xtls-rprx-vision
+    network: tcp
+    reality-opts:
+      public-key: e2RLf57Li_-MDZGE9ss1BWPgP54mqRb5PfXhW2jcVVg
+      short-id: c39cc7310a
+    uuid: d65cc14c-f53f-4fe2-b262-97856601319c
+  - name: 36-🇺🇸US-vless-243ms
+    type: vless
+    server: 157.254.223.44
+    port: 18959
+    client-fingerprint: chrome
+    tls: true
+    servername: itunes.apple.com
+    network: tcp
+    reality-opts:
+      public-key: -hwVEdgFkvjku8ESuDoAA7id5yGGv_zXBvBW_RdhmHA
+      short-id: d557c6895d014075
+    uuid: d0b3e27d-bbfc-4a3b-8e60-6973de8fcefa
+  - name: 37-🇭🇰HK-trojan-101ms
+    type: trojan
+    server: h7.t11-a.app
+    port: 22337
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: hk07t.goodyun.buzz
+  - name: 38-🇭🇰HK-trojan-85ms
+    type: trojan
+    server: h8.t11-a.app
+    port: 22338
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: hk08t.goodyun.buzz
+  - name: 39-🇭🇰HK-trojan-83ms
+    type: trojan
+    server: h9.t11-a.app
+    port: 22339
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: v.t202511-s.icu
+  - name: 40-🇭🇰HK-trojan-119ms
+    type: trojan
+    server: h10.t11-a.app
+    port: 22340
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: v.t202511-s.icu
+  - name: 41-🇸🇬SG-trojan-155ms
+    type: trojan
+    server: s4.t11-a.app
+    port: 26211
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: v.t202511-s.icu
+  - name: 42-🇸🇬SG-trojan-102ms
+    type: trojan
+    server: s10.t11-a.app
+    port: 26210
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: sg10t.goodyun.buzz
+  - name: 43-🇸🇬SG-trojan-481ms
+    type: trojan
+    server: s11.t11-a.app
+    port: 26218
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: sg11t.goodyun.buzz
+  - name: 44-🇸🇬SG-trojan-168ms
+    type: trojan
+    server: s12.t11-a.app
+    port: 26212
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: sg12t.goodyun.buzz
+  - name: 45-🇸🇬SG-trojan-443ms
+    type: trojan
+    server: s13.t11-a.app
+    port: 26213
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: sg13t.goodyun.buzz
+  - name: 46-🇸🇬SG-trojan-172ms
+    type: trojan
+    server: s14.t11-a.app
+    port: 26214
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: sg14t.goodyun.buzz
+  - name: 47-🇸🇬SG-trojan-122ms
+    type: trojan
+    server: s15.t11-a.app
+    port: 26215
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: sg15t.goodyun.buzz
+  - name: 48-🇯🇵JP-trojan-393ms
+    type: trojan
+    server: j01.t11-a.app
+    port: 35001
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: n.t202511-s.icu
+  - name: 49-🇯🇵JP-trojan-279ms
+    type: trojan
+    server: j02.t11-a.app
+    port: 35002
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: t.t202511-s.icu
+  - name: 50-🇯🇵JP-trojan-228ms
+    type: trojan
+    server: j3.t11-a.app
+    port: 35003
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: s.t202511-s.icu
+  - name: 51-🇯🇵JP-trojan-225ms
+    type: trojan
+    server: j4.t11-a.app
+    port: 35004
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: s.t202511-s.icu
+  - name: 52-🇯🇵JP-trojan-271ms
+    type: trojan
+    server: j7.t11-a.app
+    port: 35077
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: jp077t.goodyun.buzz
+  - name: 53-🇺🇸US-trojan-252ms
+    type: trojan
+    server: us7.t11-a.app
+    port: 33808
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: us07t.goodyun.buzz
+  - name: 54-🇺🇸US-trojan-303ms
+    type: trojan
+    server: us9.t11-a.app
+    port: 33810
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: us09t.goodyun.buzz
+  - name: 55-🇺🇸US-trojan-268ms
+    type: trojan
+    server: us10.t11-a.app
+    port: 33811
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: us10t.goodyun.buzz
+  - name: 56-🇨🇳TW-trojan-95ms
+    type: trojan
+    server: tw6.t11-a.app
+    port: 33906
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: tw06t.goodyun.buzz
+  - name: 57-🇫🇷FR-trojan-277ms
+    type: trojan
+    server: fr1.t11-a.app
+    port: 11001
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: fr01t.goodyun.buzz
+  - name: 58-🇫🇷FR-trojan-279ms
+    type: trojan
+    server: fr2.t11-a.app
+    port: 11002
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: fr02t.goodyun.buzz
+  - name: 59-🇬🇧GB-trojan-332ms
+    type: trojan
+    server: uk2.t11-a.app
+    port: 11005
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: uk02t.goodyun.buzz
+  - name: 60-🇨🇦CA-trojan-377ms
+    type: trojan
+    server: ca1.t11-a.app
+    port: 11008
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: ca01t.goodyun.buzz
+  - name: 61-🇳🇱NL-trojan-303ms
+    type: trojan
+    server: nl1.t11-a.app
+    port: 11009
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: nl01t.goodyun.buzz
+  - name: 62-🇷🇺RU-trojan-331ms
+    type: trojan
+    server: ru1.t11-a.app
+    port: 11010
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: ru01t.goodyun.buzz
+  - name: 63-🇹🇷TR-trojan-439ms
+    type: trojan
+    server: tr1.t11-a.app
+    port: 11051
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: tr01t.goodyun.buzz
+  - name: 64-🇰🇷KR-trojan-274ms
+    type: trojan
+    server: kr1.t11-a.app
+    port: 11029
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: kr011t.goodyun.buzz
+  - name: 65-🇻🇳VN-trojan-160ms
+    type: trojan
+    server: vn1.t11-a.app
+    port: 11015
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: vn01t.goodyun.buzz
+  - name: 66-🇦🇺AU-trojan-379ms
+    type: trojan
+    server: au1.t11-a.app
+    port: 11016
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: au01t.goodyun.buzz
+  - name: 67-🇦🇷AR-trojan-441ms
+    type: trojan
+    server: ar1.t11-a.app
+    port: 11018
+    password: bb0fe94d-8675-42f7-b0b7-73a5e2a0f76a
+    skip-cert-verify: true
+    network: tcp
+    sni: ar01t.goodyun.buzz
+proxy-groups:
+  - name: Haita Cloud
+    type: select
+    proxies:
+      - 自动选择
+      - 故障转移
+      - 官网地址https://kelayun.notepin.co
+      - 下单地址https://kelayun.notepin.co
+      - 购买地址https://kelayun.notepin.co
+      - 梯子地址https://kelayun.notepin.co
+      - 最低月付2块钱1000G流量
+      - 最高200元终身无限流量
+      - 不限速不限设备
+      - 新疆西藏福建可用
+      - 15-🇳🇱NL-ss-300ms
+      - 16-🇲🇴MO-ss-208ms
+      - 17-🇻🇳VN-ss-179ms
+      - 18-🇧🇷BR-ss-455ms
+      - 19-🇨🇦CA-ss-331ms
+      - 20-🇦🇺AU-ss-363ms
+      - 21-🇮🇩ID-ss-462ms
+      - 22-🇭🇰HK-ss-230ms
+      - 23-🇭🇰HK-ss-144ms
+      - 24-🇭🇰HK-ss-268ms
+      - 25-🇨🇳TW-ss-116ms
+      - 26-🇨🇳TW-ss-139ms
+      - 27-🇸🇬SG-ss-481ms
+      - 28-🇺🇸US-ss-293ms
+      - 29-🇺🇸US-ss-333ms
+      - 30-🇰🇷KR-ss-351ms
+      - 31-🇸🇦SA-ss-401ms
+      - 32-🇳🇱NL-vless-259ms
+      - 33-🇺🇸US-vless-277ms
+      - 34-🇫🇮FI-vless-214ms
+      - 35-🇳🇱NL-vless-229ms
+      - 36-🇺🇸US-vless-243ms
+      - 37-🇭🇰HK-trojan-101ms
+      - 38-🇭🇰HK-trojan-85ms
+      - 39-🇭🇰HK-trojan-83ms
+      - 40-🇭🇰HK-trojan-119ms
+      - 41-🇸🇬SG-trojan-155ms
+      - 42-🇸🇬SG-trojan-102ms
+      - 43-🇸🇬SG-trojan-481ms
+      - 44-🇸🇬SG-trojan-168ms
+      - 45-🇸🇬SG-trojan-443ms
+      - 46-🇸🇬SG-trojan-172ms
+      - 47-🇸🇬SG-trojan-122ms
+      - 48-🇯🇵JP-trojan-393ms
+      - 49-🇯🇵JP-trojan-279ms
+      - 50-🇯🇵JP-trojan-228ms
+      - 51-🇯🇵JP-trojan-225ms
+      - 52-🇯🇵JP-trojan-271ms
+      - 53-🇺🇸US-trojan-252ms
+      - 54-🇺🇸US-trojan-303ms
+      - 55-🇺🇸US-trojan-268ms
+      - 56-🇨🇳TW-trojan-95ms
+      - 57-🇫🇷FR-trojan-277ms
+      - 58-🇫🇷FR-trojan-279ms
+      - 59-🇬🇧GB-trojan-332ms
+      - 60-🇨🇦CA-trojan-377ms
+      - 61-🇳🇱NL-trojan-303ms
+      - 62-🇷🇺RU-trojan-331ms
+      - 63-🇹🇷TR-trojan-439ms
+      - 64-🇰🇷KR-trojan-274ms
+      - 65-🇻🇳VN-trojan-160ms
+      - 66-🇦🇺AU-trojan-379ms
+      - 67-🇦🇷AR-trojan-441ms
+  - name: 自动选择
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 86400
+    proxies:
+      - 官网地址https://kelayun.notepin.co
+      - 下单地址https://kelayun.notepin.co
+      - 购买地址https://kelayun.notepin.co
+      - 梯子地址https://kelayun.notepin.co
+      - 最低月付2块钱1000G流量
+      - 最高200元终身无限流量
+      - 不限速不限设备
+      - 新疆西藏福建可用
+      - 15-🇳🇱NL-ss-300ms
+      - 16-🇲🇴MO-ss-208ms
+      - 17-🇻🇳VN-ss-179ms
+      - 18-🇧🇷BR-ss-455ms
+      - 19-🇨🇦CA-ss-331ms
+      - 20-🇦🇺AU-ss-363ms
+      - 21-🇮🇩ID-ss-462ms
+      - 22-🇭🇰HK-ss-230ms
+      - 23-🇭🇰HK-ss-144ms
+      - 24-🇭🇰HK-ss-268ms
+      - 25-🇨🇳TW-ss-116ms
+      - 26-🇨🇳TW-ss-139ms
+      - 27-🇸🇬SG-ss-481ms
+      - 28-🇺🇸US-ss-293ms
+      - 29-🇺🇸US-ss-333ms
+      - 30-🇰🇷KR-ss-351ms
+      - 31-🇸🇦SA-ss-401ms
+      - 32-🇳🇱NL-vless-259ms
+      - 33-🇺🇸US-vless-277ms
+      - 34-🇫🇮FI-vless-214ms
+      - 35-🇳🇱NL-vless-229ms
+      - 36-🇺🇸US-vless-243ms
+      - 37-🇭🇰HK-trojan-101ms
+      - 38-🇭🇰HK-trojan-85ms
+      - 39-🇭🇰HK-trojan-83ms
+      - 40-🇭🇰HK-trojan-119ms
+      - 41-🇸🇬SG-trojan-155ms
+      - 42-🇸🇬SG-trojan-102ms
+      - 43-🇸🇬SG-trojan-481ms
+      - 44-🇸🇬SG-trojan-168ms
+      - 45-🇸🇬SG-trojan-443ms
+      - 46-🇸🇬SG-trojan-172ms
+      - 47-🇸🇬SG-trojan-122ms
+      - 48-🇯🇵JP-trojan-393ms
+      - 49-🇯🇵JP-trojan-279ms
+      - 50-🇯🇵JP-trojan-228ms
+      - 51-🇯🇵JP-trojan-225ms
+      - 52-🇯🇵JP-trojan-271ms
+      - 53-🇺🇸US-trojan-252ms
+      - 54-🇺🇸US-trojan-303ms
+      - 55-🇺🇸US-trojan-268ms
+      - 56-🇨🇳TW-trojan-95ms
+      - 57-🇫🇷FR-trojan-277ms
+      - 58-🇫🇷FR-trojan-279ms
+      - 59-🇬🇧GB-trojan-332ms
+      - 60-🇨🇦CA-trojan-377ms
+      - 61-🇳🇱NL-trojan-303ms
+      - 62-🇷🇺RU-trojan-331ms
+      - 63-🇹🇷TR-trojan-439ms
+      - 64-🇰🇷KR-trojan-274ms
+      - 65-🇻🇳VN-trojan-160ms
+      - 66-🇦🇺AU-trojan-379ms
+      - 67-🇦🇷AR-trojan-441ms
+  - name: 故障转移
+    type: fallback
+    url: http://www.gstatic.com/generate_204
+    interval: 7200
+    proxies:
+      - 官网地址https://kelayun.notepin.co
+      - 下单地址https://kelayun.notepin.co
+      - 购买地址https://kelayun.notepin.co
+      - 梯子地址https://kelayun.notepin.co
+      - 最低月付2块钱1000G流量
+      - 最高200元终身无限流量
+      - 不限速不限设备
+      - 新疆西藏福建可用
+      - 15-🇳🇱NL-ss-300ms
+      - 16-🇲🇴MO-ss-208ms
+      - 17-🇻🇳VN-ss-179ms
+      - 18-🇧🇷BR-ss-455ms
+      - 19-🇨🇦CA-ss-331ms
+      - 20-🇦🇺AU-ss-363ms
+      - 21-🇮🇩ID-ss-462ms
+      - 22-🇭🇰HK-ss-230ms
+      - 23-🇭🇰HK-ss-144ms
+      - 24-🇭🇰HK-ss-268ms
+      - 25-🇨🇳TW-ss-116ms
+      - 26-🇨🇳TW-ss-139ms
+      - 27-🇸🇬SG-ss-481ms
+      - 28-🇺🇸US-ss-293ms
+      - 29-🇺🇸US-ss-333ms
+      - 30-🇰🇷KR-ss-351ms
+      - 31-🇸🇦SA-ss-401ms
+      - 32-🇳🇱NL-vless-259ms
+      - 33-🇺🇸US-vless-277ms
+      - 34-🇫🇮FI-vless-214ms
+      - 35-🇳🇱NL-vless-229ms
+      - 36-🇺🇸US-vless-243ms
+      - 37-🇭🇰HK-trojan-101ms
+      - 38-🇭🇰HK-trojan-85ms
+      - 39-🇭🇰HK-trojan-83ms
+      - 40-🇭🇰HK-trojan-119ms
+      - 41-🇸🇬SG-trojan-155ms
+      - 42-🇸🇬SG-trojan-102ms
+      - 43-🇸🇬SG-trojan-481ms
+      - 44-🇸🇬SG-trojan-168ms
+      - 45-🇸🇬SG-trojan-443ms
+      - 46-🇸🇬SG-trojan-172ms
+      - 47-🇸🇬SG-trojan-122ms
+      - 48-🇯🇵JP-trojan-393ms
+      - 49-🇯🇵JP-trojan-279ms
+      - 50-🇯🇵JP-trojan-228ms
+      - 51-🇯🇵JP-trojan-225ms
+      - 52-🇯🇵JP-trojan-271ms
+      - 53-🇺🇸US-trojan-252ms
+      - 54-🇺🇸US-trojan-303ms
+      - 55-🇺🇸US-trojan-268ms
+      - 56-🇨🇳TW-trojan-95ms
+      - 57-🇫🇷FR-trojan-277ms
+      - 58-🇫🇷FR-trojan-279ms
+      - 59-🇬🇧GB-trojan-332ms
+      - 60-🇨🇦CA-trojan-377ms
+      - 61-🇳🇱NL-trojan-303ms
+      - 62-🇷🇺RU-trojan-331ms
+      - 63-🇹🇷TR-trojan-439ms
+      - 64-🇰🇷KR-trojan-274ms
+      - 65-🇻🇳VN-trojan-160ms
+      - 66-🇦🇺AU-trojan-379ms
+      - 67-🇦🇷AR-trojan-441ms
+rules:
+  - DOMAIN,su.bestyuns.com,DIRECT
+  - DOMAIN-SUFFIX,services.googleapis.cn,Haita Cloud
+  - DOMAIN-SUFFIX,xn--ngstr-lra8j.com,Haita Cloud
+  - DOMAIN,safebrowsing.urlsec.qq.com,DIRECT
+  - DOMAIN,safebrowsing.googleapis.com,DIRECT
+  - DOMAIN,developer.apple.com,Haita Cloud
+  - DOMAIN-SUFFIX,digicert.com,Haita Cloud
+  - DOMAIN,ocsp.apple.com,Haita Cloud
+  - DOMAIN,ocsp.comodoca.com,Haita Cloud
+  - DOMAIN,ocsp.usertrust.com,Haita Cloud
+  - DOMAIN,ocsp.sectigo.com,Haita Cloud
+  - DOMAIN,ocsp.verisign.net,Haita Cloud
+  - DOMAIN-SUFFIX,apple-dns.net,Haita Cloud
+  - DOMAIN,testflight.apple.com,Haita Cloud
+  - DOMAIN,sandbox.itunes.apple.com,Haita Cloud
+  - DOMAIN,itunes.apple.com,Haita Cloud
+  - DOMAIN-SUFFIX,apps.apple.com,Haita Cloud
+  - DOMAIN-SUFFIX,blobstore.apple.com,Haita Cloud
+  - DOMAIN,cvws.icloud-content.com,Haita Cloud
+  - DOMAIN-SUFFIX,mzstatic.com,DIRECT
+  - DOMAIN-SUFFIX,itunes.apple.com,DIRECT
+  - DOMAIN-SUFFIX,icloud.com,DIRECT
+  - DOMAIN-SUFFIX,icloud-content.com,DIRECT
+  - DOMAIN-SUFFIX,me.com,DIRECT
+  - DOMAIN-SUFFIX,aaplimg.com,DIRECT
+  - DOMAIN-SUFFIX,cdn20.com,DIRECT
+  - DOMAIN-SUFFIX,cdn-apple.com,DIRECT
+  - DOMAIN-SUFFIX,akadns.net,DIRECT
+  - DOMAIN-SUFFIX,akamaiedge.net,DIRECT
+  - DOMAIN-SUFFIX,edgekey.net,DIRECT
+  - DOMAIN-SUFFIX,mwcloudcdn.com,DIRECT
+  - DOMAIN-SUFFIX,mwcname.com,DIRECT
+  - DOMAIN-SUFFIX,apple.com,DIRECT
+  - DOMAIN-SUFFIX,apple-cloudkit.com,DIRECT
+  - DOMAIN-SUFFIX,apple-mapkit.com,DIRECT
+  - DOMAIN-SUFFIX,126.com,DIRECT
+  - DOMAIN-SUFFIX,126.net,DIRECT
+  - DOMAIN-SUFFIX,127.net,DIRECT
+  - DOMAIN-SUFFIX,163.com,DIRECT
+  - DOMAIN-SUFFIX,360buyimg.com,DIRECT
+  - DOMAIN-SUFFIX,36kr.com,DIRECT
+  - DOMAIN-SUFFIX,acfun.tv,DIRECT
+  - DOMAIN-SUFFIX,air-matters.com,DIRECT
+  - DOMAIN-SUFFIX,aixifan.com,DIRECT
+  - DOMAIN-KEYWORD,alicdn,DIRECT
+  - DOMAIN-KEYWORD,alipay,DIRECT
+  - DOMAIN-KEYWORD,taobao,DIRECT
+  - DOMAIN-SUFFIX,amap.com,DIRECT
+  - DOMAIN-SUFFIX,autonavi.com,DIRECT
+  - DOMAIN-KEYWORD,baidu,DIRECT
+  - DOMAIN-SUFFIX,bdimg.com,DIRECT
+  - DOMAIN-SUFFIX,bdstatic.com,DIRECT
+  - DOMAIN-SUFFIX,bilibili.com,DIRECT
+  - DOMAIN-SUFFIX,bilivideo.com,DIRECT
+  - DOMAIN-SUFFIX,caiyunapp.com,DIRECT
+  - DOMAIN-SUFFIX,clouddn.com,DIRECT
+  - DOMAIN-SUFFIX,cnbeta.com,DIRECT
+  - DOMAIN-SUFFIX,cnbetacdn.com,DIRECT
+  - DOMAIN-SUFFIX,cootekservice.com,DIRECT
+  - DOMAIN-SUFFIX,csdn.net,DIRECT
+  - DOMAIN-SUFFIX,ctrip.com,DIRECT
+  - DOMAIN-SUFFIX,dgtle.com,DIRECT
+  - DOMAIN-SUFFIX,dianping.com,DIRECT
+  - DOMAIN-SUFFIX,douban.com,DIRECT
+  - DOMAIN-SUFFIX,doubanio.com,DIRECT
+  - DOMAIN-SUFFIX,duokan.com,DIRECT
+  - DOMAIN-SUFFIX,easou.com,DIRECT
+  - DOMAIN-SUFFIX,ele.me,DIRECT
+  - DOMAIN-SUFFIX,feng.com,DIRECT
+  - DOMAIN-SUFFIX,fir.im,DIRECT
+  - DOMAIN-SUFFIX,frdic.com,DIRECT
+  - DOMAIN-SUFFIX,g-cores.com,DIRECT
+  - DOMAIN-SUFFIX,godic.net,DIRECT
+  - DOMAIN-SUFFIX,gtimg.com,DIRECT
+  - DOMAIN,cdn.hockeyapp.net,DIRECT
+  - DOMAIN-SUFFIX,hongxiu.com,DIRECT
+  - DOMAIN-SUFFIX,hxcdn.net,DIRECT
+  - DOMAIN-SUFFIX,iciba.com,DIRECT
+  - DOMAIN-SUFFIX,ifeng.com,DIRECT
+  - DOMAIN-SUFFIX,ifengimg.com,DIRECT
+  - DOMAIN-SUFFIX,ipip.net,DIRECT
+  - DOMAIN-SUFFIX,iqiyi.com,DIRECT
+  - DOMAIN-SUFFIX,jd.com,DIRECT
+  - DOMAIN-SUFFIX,jianshu.com,DIRECT
+  - DOMAIN-SUFFIX,knewone.com,DIRECT
+  - DOMAIN-SUFFIX,le.com,DIRECT
+  - DOMAIN-SUFFIX,lecloud.com,DIRECT
+  - DOMAIN-SUFFIX,lemicp.com,DIRECT
+  - DOMAIN-SUFFIX,licdn.com,DIRECT
+  - DOMAIN-SUFFIX,luoo.net,DIRECT
+  - DOMAIN-SUFFIX,meituan.com,DIRECT
+  - DOMAIN-SUFFIX,meituan.net,DIRECT
+  - DOMAIN-SUFFIX,mi.com,DIRECT
+  - DOMAIN-SUFFIX,miaopai.com,DIRECT
+  - DOMAIN-SUFFIX,microsoft.com,DIRECT
+  - DOMAIN-SUFFIX,microsoftonline.com,DIRECT
+  - DOMAIN-SUFFIX,miui.com,DIRECT
+  - DOMAIN-SUFFIX,miwifi.com,DIRECT
+  - DOMAIN-SUFFIX,mob.com,DIRECT
+  - DOMAIN-SUFFIX,netease.com,DIRECT
+  - DOMAIN-SUFFIX,office.com,DIRECT
+  - DOMAIN-SUFFIX,office365.com,DIRECT
+  - DOMAIN-KEYWORD,officecdn,DIRECT
+  - DOMAIN-SUFFIX,oschina.net,DIRECT
+  - DOMAIN-SUFFIX,ppsimg.com,DIRECT
+  - DOMAIN-SUFFIX,pstatp.com,DIRECT
+  - DOMAIN-SUFFIX,qcloud.com,DIRECT
+  - DOMAIN-SUFFIX,qdaily.com,DIRECT
+  - DOMAIN-SUFFIX,qdmm.com,DIRECT
+  - DOMAIN-SUFFIX,qhimg.com,DIRECT
+  - DOMAIN-SUFFIX,qhres.com,DIRECT
+  - DOMAIN-SUFFIX,qidian.com,DIRECT
+  - DOMAIN-SUFFIX,qihucdn.com,DIRECT
+  - DOMAIN-SUFFIX,qiniu.com,DIRECT
+  - DOMAIN-SUFFIX,qiniucdn.com,DIRECT
+  - DOMAIN-SUFFIX,qiyipic.com,DIRECT
+  - DOMAIN-SUFFIX,qq.com,DIRECT
+  - DOMAIN-SUFFIX,qqurl.com,DIRECT
+  - DOMAIN-SUFFIX,rarbg.to,DIRECT
+  - DOMAIN-SUFFIX,ruguoapp.com,DIRECT
+  - DOMAIN-SUFFIX,segmentfault.com,DIRECT
+  - DOMAIN-SUFFIX,sinaapp.com,DIRECT
+  - DOMAIN-SUFFIX,smzdm.com,DIRECT
+  - DOMAIN-SUFFIX,snapdrop.net,DIRECT
+  - DOMAIN-SUFFIX,sogou.com,DIRECT
+  - DOMAIN-SUFFIX,sogoucdn.com,DIRECT
+  - DOMAIN-SUFFIX,sohu.com,DIRECT
+  - DOMAIN-SUFFIX,soku.com,DIRECT
+  - DOMAIN-SUFFIX,speedtest.net,DIRECT
+  - DOMAIN-SUFFIX,sspai.com,DIRECT
+  - DOMAIN-SUFFIX,suning.com,DIRECT
+  - DOMAIN-SUFFIX,taobao.com,DIRECT
+  - DOMAIN-SUFFIX,tencent.com,DIRECT
+  - DOMAIN-SUFFIX,tenpay.com,DIRECT
+  - DOMAIN-SUFFIX,tianyancha.com,DIRECT
+  - DOMAIN-SUFFIX,tmall.com,DIRECT
+  - DOMAIN-SUFFIX,tudou.com,DIRECT
+  - DOMAIN-SUFFIX,umetrip.com,DIRECT
+  - DOMAIN-SUFFIX,upaiyun.com,DIRECT
+  - DOMAIN-SUFFIX,upyun.com,DIRECT
+  - DOMAIN-SUFFIX,veryzhun.com,DIRECT
+  - DOMAIN-SUFFIX,weather.com,DIRECT
+  - DOMAIN-SUFFIX,weibo.com,DIRECT
+  - DOMAIN-SUFFIX,xiami.com,DIRECT
+  - DOMAIN-SUFFIX,xiami.net,DIRECT
+  - DOMAIN-SUFFIX,xiaomicp.com,DIRECT
+  - DOMAIN-SUFFIX,ximalaya.com,DIRECT
+  - DOMAIN-SUFFIX,xmcdn.com,DIRECT
+  - DOMAIN-SUFFIX,xunlei.com,DIRECT
+  - DOMAIN-SUFFIX,yhd.com,DIRECT
+  - DOMAIN-SUFFIX,yihaodianimg.com,DIRECT
+  - DOMAIN-SUFFIX,yinxiang.com,DIRECT
+  - DOMAIN-SUFFIX,ykimg.com,DIRECT
+  - DOMAIN-SUFFIX,youdao.com,DIRECT
+  - DOMAIN-SUFFIX,youku.com,DIRECT
+  - DOMAIN-SUFFIX,zealer.com,DIRECT
+  - DOMAIN-SUFFIX,zhihu.com,DIRECT
+  - DOMAIN-SUFFIX,zhimg.com,DIRECT
+  - DOMAIN-SUFFIX,zimuzu.tv,DIRECT
+  - DOMAIN-SUFFIX,zoho.com,DIRECT
+  - DOMAIN-KEYWORD,amazon,Haita Cloud
+  - DOMAIN-KEYWORD,google,Haita Cloud
+  - DOMAIN-KEYWORD,gmail,Haita Cloud
+  - DOMAIN-KEYWORD,youtube,Haita Cloud
+  - DOMAIN-KEYWORD,facebook,Haita Cloud
+  - DOMAIN-SUFFIX,fb.me,Haita Cloud
+  - DOMAIN-SUFFIX,fbcdn.net,Haita Cloud
+  - DOMAIN-KEYWORD,twitter,Haita Cloud
+  - DOMAIN-KEYWORD,instagram,Haita Cloud
+  - DOMAIN-KEYWORD,dropbox,Haita Cloud
+  - DOMAIN-SUFFIX,twimg.com,Haita Cloud
+  - DOMAIN-KEYWORD,blogspot,Haita Cloud
+  - DOMAIN-SUFFIX,youtu.be,Haita Cloud
+  - DOMAIN-KEYWORD,whatsapp,Haita Cloud
+  - DOMAIN-KEYWORD,admarvel,REJECT
+  - DOMAIN-KEYWORD,admaster,REJECT
+  - DOMAIN-KEYWORD,adsage,REJECT
+  - DOMAIN-KEYWORD,adsmogo,REJECT
+  - DOMAIN-KEYWORD,adsrvmedia,REJECT
+  - DOMAIN-KEYWORD,adwords,REJECT
+  - DOMAIN-KEYWORD,adservice,REJECT
+  - DOMAIN-SUFFIX,appsflyer.com,REJECT
+  - DOMAIN-KEYWORD,domob,REJECT
+  - DOMAIN-SUFFIX,doubleclick.net,REJECT
+  - DOMAIN-KEYWORD,duomeng,REJECT
+  - DOMAIN-KEYWORD,dwtrack,REJECT
+  - DOMAIN-KEYWORD,guanggao,REJECT
+  - DOMAIN-KEYWORD,lianmeng,REJECT
+  - DOMAIN-SUFFIX,mmstat.com,REJECT
+  - DOMAIN-KEYWORD,mopub,REJECT
+  - DOMAIN-KEYWORD,omgmta,REJECT
+  - DOMAIN-KEYWORD,openx,REJECT
+  - DOMAIN-KEYWORD,partnerad,REJECT
+  - DOMAIN-KEYWORD,pingfore,REJECT
+  - DOMAIN-KEYWORD,supersonicads,REJECT
+  - DOMAIN-KEYWORD,uedas,REJECT
+  - DOMAIN-KEYWORD,umeng,REJECT
+  - DOMAIN-KEYWORD,usage,REJECT
+  - DOMAIN-SUFFIX,vungle.com,REJECT
+  - DOMAIN-KEYWORD,wlmonitor,REJECT
+  - DOMAIN-KEYWORD,zjtoolbar,REJECT
+  - DOMAIN-SUFFIX,9to5mac.com,Haita Cloud
+  - DOMAIN-SUFFIX,abpchina.org,Haita Cloud
+  - DOMAIN-SUFFIX,adblockplus.org,Haita Cloud
+  - DOMAIN-SUFFIX,adobe.com,Haita Cloud
+  - DOMAIN-SUFFIX,akamaized.net,Haita Cloud
+  - DOMAIN-SUFFIX,alfredapp.com,Haita Cloud
+  - DOMAIN-SUFFIX,amplitude.com,Haita Cloud
+  - DOMAIN-SUFFIX,ampproject.org,Haita Cloud
+  - DOMAIN-SUFFIX,android.com,Haita Cloud
+  - DOMAIN-SUFFIX,angularjs.org,Haita Cloud
+  - DOMAIN-SUFFIX,aolcdn.com,Haita Cloud
+  - DOMAIN-SUFFIX,apkpure.com,Haita Cloud
+  - DOMAIN-SUFFIX,appledaily.com,Haita Cloud
+  - DOMAIN-SUFFIX,appshopper.com,Haita Cloud
+  - DOMAIN-SUFFIX,appspot.com,Haita Cloud
+  - DOMAIN-SUFFIX,arcgis.com,Haita Cloud
+  - DOMAIN-SUFFIX,archive.org,Haita Cloud
+  - DOMAIN-SUFFIX,armorgames.com,Haita Cloud
+  - DOMAIN-SUFFIX,aspnetcdn.com,Haita Cloud
+  - DOMAIN-SUFFIX,att.com,Haita Cloud
+  - DOMAIN-SUFFIX,awsstatic.com,Haita Cloud
+  - DOMAIN-SUFFIX,azureedge.net,Haita Cloud
+  - DOMAIN-SUFFIX,azurewebsites.net,Haita Cloud
+  - DOMAIN-SUFFIX,bing.com,Haita Cloud
+  - DOMAIN-SUFFIX,bintray.com,Haita Cloud
+  - DOMAIN-SUFFIX,bit.com,Haita Cloud
+  - DOMAIN-SUFFIX,bit.ly,Haita Cloud
+  - DOMAIN-SUFFIX,bitbucket.org,Haita Cloud
+  - DOMAIN-SUFFIX,bjango.com,Haita Cloud
+  - DOMAIN-SUFFIX,bkrtx.com,Haita Cloud
+  - DOMAIN-SUFFIX,blog.com,Haita Cloud
+  - DOMAIN-SUFFIX,blogcdn.com,Haita Cloud
+  - DOMAIN-SUFFIX,blogger.com,Haita Cloud
+  - DOMAIN-SUFFIX,blogsmithmedia.com,Haita Cloud
+  - DOMAIN-SUFFIX,blogspot.com,Haita Cloud
+  - DOMAIN-SUFFIX,blogspot.hk,Haita Cloud
+  - DOMAIN-SUFFIX,bloomberg.com,Haita Cloud
+  - DOMAIN-SUFFIX,box.com,Haita Cloud
+  - DOMAIN-SUFFIX,box.net,Haita Cloud
+  - DOMAIN-SUFFIX,cachefly.net,Haita Cloud
+  - DOMAIN-SUFFIX,chromium.org,Haita Cloud
+  - DOMAIN-SUFFIX,cl.ly,Haita Cloud
+  - DOMAIN-SUFFIX,cloudflare.com,Haita Cloud
+  - DOMAIN-SUFFIX,cloudfront.net,Haita Cloud
+  - DOMAIN-SUFFIX,cloudmagic.com,Haita Cloud
+  - DOMAIN-SUFFIX,cmail19.com,Haita Cloud
+  - DOMAIN-SUFFIX,cnet.com,Haita Cloud
+  - DOMAIN-SUFFIX,cocoapods.org,Haita Cloud
+  - DOMAIN-SUFFIX,comodoca.com,Haita Cloud
+  - DOMAIN-SUFFIX,crashlytics.com,Haita Cloud
+  - DOMAIN-SUFFIX,culturedcode.com,Haita Cloud
+  - DOMAIN-SUFFIX,d.pr,Haita Cloud
+  - DOMAIN-SUFFIX,danilo.to,Haita Cloud
+  - DOMAIN-SUFFIX,dayone.me,Haita Cloud
+  - DOMAIN-SUFFIX,db.tt,Haita Cloud
+  - DOMAIN-SUFFIX,deskconnect.com,Haita Cloud
+  - DOMAIN-SUFFIX,disq.us,Haita Cloud
+  - DOMAIN-SUFFIX,disqus.com,Haita Cloud
+  - DOMAIN-SUFFIX,disquscdn.com,Haita Cloud
+  - DOMAIN-SUFFIX,dnsimple.com,Haita Cloud
+  - DOMAIN-SUFFIX,docker.com,Haita Cloud
+  - DOMAIN-SUFFIX,dribbble.com,Haita Cloud
+  - DOMAIN-SUFFIX,droplr.com,Haita Cloud
+  - DOMAIN-SUFFIX,duckduckgo.com,Haita Cloud
+  - DOMAIN-SUFFIX,dueapp.com,Haita Cloud
+  - DOMAIN-SUFFIX,dytt8.net,Haita Cloud
+  - DOMAIN-SUFFIX,edgecastcdn.net,Haita Cloud
+  - DOMAIN-SUFFIX,edgekey.net,Haita Cloud
+  - DOMAIN-SUFFIX,edgesuite.net,Haita Cloud
+  - DOMAIN-SUFFIX,engadget.com,Haita Cloud
+  - DOMAIN-SUFFIX,entrust.net,Haita Cloud
+  - DOMAIN-SUFFIX,eurekavpt.com,Haita Cloud
+  - DOMAIN-SUFFIX,evernote.com,Haita Cloud
+  - DOMAIN-SUFFIX,fabric.io,Haita Cloud
+  - DOMAIN-SUFFIX,fast.com,Haita Cloud
+  - DOMAIN-SUFFIX,fastly.net,Haita Cloud
+  - DOMAIN-SUFFIX,fc2.com,Haita Cloud
+  - DOMAIN-SUFFIX,feedburner.com,Haita Cloud
+  - DOMAIN-SUFFIX,feedly.com,Haita Cloud
+  - DOMAIN-SUFFIX,feedsportal.com,Haita Cloud
+  - DOMAIN-SUFFIX,fiftythree.com,Haita Cloud
+  - DOMAIN-SUFFIX,firebaseio.com,Haita Cloud
+  - DOMAIN-SUFFIX,flexibits.com,Haita Cloud
+  - DOMAIN-SUFFIX,flickr.com,Haita Cloud
+  - DOMAIN-SUFFIX,flipboard.com,Haita Cloud
+  - DOMAIN-SUFFIX,g.co,Haita Cloud
+  - DOMAIN-SUFFIX,gabia.net,Haita Cloud
+  - DOMAIN-SUFFIX,geni.us,Haita Cloud
+  - DOMAIN-SUFFIX,gfx.ms,Haita Cloud
+  - DOMAIN-SUFFIX,ggpht.com,Haita Cloud
+  - DOMAIN-SUFFIX,ghostnoteapp.com,Haita Cloud
+  - DOMAIN-SUFFIX,git.io,Haita Cloud
+  - DOMAIN-KEYWORD,github,Haita Cloud
+  - DOMAIN-SUFFIX,globalsign.com,Haita Cloud
+  - DOMAIN-SUFFIX,gmodules.com,Haita Cloud
+  - DOMAIN-SUFFIX,godaddy.com,Haita Cloud
+  - DOMAIN-SUFFIX,golang.org,Haita Cloud
+  - DOMAIN-SUFFIX,gongm.in,Haita Cloud
+  - DOMAIN-SUFFIX,goo.gl,Haita Cloud
+  - DOMAIN-SUFFIX,goodreaders.com,Haita Cloud
+  - DOMAIN-SUFFIX,goodreads.com,Haita Cloud
+  - DOMAIN-SUFFIX,gravatar.com,Haita Cloud
+  - DOMAIN-SUFFIX,gstatic.com,Haita Cloud
+  - DOMAIN-SUFFIX,gvt0.com,Haita Cloud
+  - DOMAIN-SUFFIX,hockeyapp.net,Haita Cloud
+  - DOMAIN-SUFFIX,hotmail.com,Haita Cloud
+  - DOMAIN-SUFFIX,icons8.com,Haita Cloud
+  - DOMAIN-SUFFIX,ifixit.com,Haita Cloud
+  - DOMAIN-SUFFIX,ift.tt,Haita Cloud
+  - DOMAIN-SUFFIX,ifttt.com,Haita Cloud
+  - DOMAIN-SUFFIX,iherb.com,Haita Cloud
+  - DOMAIN-SUFFIX,imageshack.us,Haita Cloud
+  - DOMAIN-SUFFIX,img.ly,Haita Cloud
+  - DOMAIN-SUFFIX,imgur.com,Haita Cloud
+  - DOMAIN-SUFFIX,imore.com,Haita Cloud
+  - DOMAIN-SUFFIX,instapaper.com,Haita Cloud
+  - DOMAIN-SUFFIX,ipn.li,Haita Cloud
+  - DOMAIN-SUFFIX,is.gd,Haita Cloud
+  - DOMAIN-SUFFIX,issuu.com,Haita Cloud
+  - DOMAIN-SUFFIX,itgonglun.com,Haita Cloud
+  - DOMAIN-SUFFIX,itun.es,Haita Cloud
+  - DOMAIN-SUFFIX,ixquick.com,Haita Cloud
+  - DOMAIN-SUFFIX,j.mp,Haita Cloud
+  - DOMAIN-SUFFIX,js.revsci.net,Haita Cloud
+  - DOMAIN-SUFFIX,jshint.com,Haita Cloud
+  - DOMAIN-SUFFIX,jtvnw.net,Haita Cloud
+  - DOMAIN-SUFFIX,justgetflux.com,Haita Cloud
+  - DOMAIN-SUFFIX,kat.cr,Haita Cloud
+  - DOMAIN-SUFFIX,klip.me,Haita Cloud
+  - DOMAIN-SUFFIX,libsyn.com,Haita Cloud
+  - DOMAIN-SUFFIX,linkedin.com,Haita Cloud
+  - DOMAIN-SUFFIX,line-apps.com,Haita Cloud
+  - DOMAIN-SUFFIX,linode.com,Haita Cloud
+  - DOMAIN-SUFFIX,lithium.com,Haita Cloud
+  - DOMAIN-SUFFIX,littlehj.com,Haita Cloud
+  - DOMAIN-SUFFIX,live.com,Haita Cloud
+  - DOMAIN-SUFFIX,live.net,Haita Cloud
+  - DOMAIN-SUFFIX,livefilestore.com,Haita Cloud
+  - DOMAIN-SUFFIX,llnwd.net,Haita Cloud
+  - DOMAIN-SUFFIX,macid.co,Haita Cloud
+  - DOMAIN-SUFFIX,macromedia.com,Haita Cloud
+  - DOMAIN-SUFFIX,macrumors.com,Haita Cloud
+  - DOMAIN-SUFFIX,mashable.com,Haita Cloud
+  - DOMAIN-SUFFIX,mathjax.org,Haita Cloud
+  - DOMAIN-SUFFIX,medium.com,Haita Cloud
+  - DOMAIN-SUFFIX,mega.co.nz,Haita Cloud
+  - DOMAIN-SUFFIX,mega.nz,Haita Cloud
+  - DOMAIN-SUFFIX,megaupload.com,Haita Cloud
+  - DOMAIN-SUFFIX,microsofttranslator.com,Haita Cloud
+  - DOMAIN-SUFFIX,mindnode.com,Haita Cloud
+  - DOMAIN-SUFFIX,mobile01.com,Haita Cloud
+  - DOMAIN-SUFFIX,modmyi.com,Haita Cloud
+  - DOMAIN-SUFFIX,msedge.net,Haita Cloud
+  - DOMAIN-SUFFIX,myfontastic.com,Haita Cloud
+  - DOMAIN-SUFFIX,name.com,Haita Cloud
+  - DOMAIN-SUFFIX,nextmedia.com,Haita Cloud
+  - DOMAIN-SUFFIX,nsstatic.net,Haita Cloud
+  - DOMAIN-SUFFIX,nssurge.com,Haita Cloud
+  - DOMAIN-SUFFIX,nyt.com,Haita Cloud
+  - DOMAIN-SUFFIX,nytimes.com,Haita Cloud
+  - DOMAIN-SUFFIX,omnigroup.com,Haita Cloud
+  - DOMAIN-SUFFIX,onedrive.com,Haita Cloud
+  - DOMAIN-SUFFIX,onenote.com,Haita Cloud
+  - DOMAIN-SUFFIX,ooyala.com,Haita Cloud
+  - DOMAIN-SUFFIX,openvpn.net,Haita Cloud
+  - DOMAIN-SUFFIX,openwrt.org,Haita Cloud
+  - DOMAIN-SUFFIX,orkut.com,Haita Cloud
+  - DOMAIN-SUFFIX,osxdaily.com,Haita Cloud
+  - DOMAIN-SUFFIX,outlook.com,Haita Cloud
+  - DOMAIN-SUFFIX,ow.ly,Haita Cloud
+  - DOMAIN-SUFFIX,paddleapi.com,Haita Cloud
+  - DOMAIN-SUFFIX,parallels.com,Haita Cloud
+  - DOMAIN-SUFFIX,parse.com,Haita Cloud
+  - DOMAIN-SUFFIX,pdfexpert.com,Haita Cloud
+  - DOMAIN-SUFFIX,periscope.tv,Haita Cloud
+  - DOMAIN-SUFFIX,pinboard.in,Haita Cloud
+  - DOMAIN-SUFFIX,pinterest.com,Haita Cloud
+  - DOMAIN-SUFFIX,pixelmator.com,Haita Cloud
+  - DOMAIN-SUFFIX,pixiv.net,Haita Cloud
+  - DOMAIN-SUFFIX,playpcesor.com,Haita Cloud
+  - DOMAIN-SUFFIX,playstation.com,Haita Cloud
+  - DOMAIN-SUFFIX,playstation.com.hk,Haita Cloud
+  - DOMAIN-SUFFIX,playstation.net,Haita Cloud
+  - DOMAIN-SUFFIX,playstationnetwork.com,Haita Cloud
+  - DOMAIN-SUFFIX,pushwoosh.com,Haita Cloud
+  - DOMAIN-SUFFIX,rime.im,Haita Cloud
+  - DOMAIN-SUFFIX,servebom.com,Haita Cloud
+  - DOMAIN-SUFFIX,sfx.ms,Haita Cloud
+  - DOMAIN-SUFFIX,shadowsocks.org,Haita Cloud
+  - DOMAIN-SUFFIX,sharethis.com,Haita Cloud
+  - DOMAIN-SUFFIX,shazam.com,Haita Cloud
+  - DOMAIN-SUFFIX,skype.com,Haita Cloud
+  - DOMAIN-SUFFIX,smartdnsHaita Cloud.com,Haita Cloud
+  - DOMAIN-SUFFIX,smartmailcloud.com,Haita Cloud
+  - DOMAIN-SUFFIX,sndcdn.com,Haita Cloud
+  - DOMAIN-SUFFIX,sony.com,Haita Cloud
+  - DOMAIN-SUFFIX,soundcloud.com,Haita Cloud
+  - DOMAIN-SUFFIX,sourceforge.net,Haita Cloud
+  - DOMAIN-SUFFIX,spotify.com,Haita Cloud
+  - DOMAIN-SUFFIX,squarespace.com,Haita Cloud
+  - DOMAIN-SUFFIX,sstatic.net,Haita Cloud
+  - DOMAIN-SUFFIX,st.luluku.pw,Haita Cloud
+  - DOMAIN-SUFFIX,stackoverflow.com,Haita Cloud
+  - DOMAIN-SUFFIX,startpage.com,Haita Cloud
+  - DOMAIN-SUFFIX,staticflickr.com,Haita Cloud
+  - DOMAIN-SUFFIX,steamcommunity.com,Haita Cloud
+  - DOMAIN-SUFFIX,symauth.com,Haita Cloud
+  - DOMAIN-SUFFIX,symcb.com,Haita Cloud
+  - DOMAIN-SUFFIX,symcd.com,Haita Cloud
+  - DOMAIN-SUFFIX,tapbots.com,Haita Cloud
+  - DOMAIN-SUFFIX,tapbots.net,Haita Cloud
+  - DOMAIN-SUFFIX,tdesktop.com,Haita Cloud
+  - DOMAIN-SUFFIX,techcrunch.com,Haita Cloud
+  - DOMAIN-SUFFIX,techsmith.com,Haita Cloud
+  - DOMAIN-SUFFIX,thepiratebay.org,Haita Cloud
+  - DOMAIN-SUFFIX,theverge.com,Haita Cloud
+  - DOMAIN-SUFFIX,time.com,Haita Cloud
+  - DOMAIN-SUFFIX,timeinc.net,Haita Cloud
+  - DOMAIN-SUFFIX,tiny.cc,Haita Cloud
+  - DOMAIN-SUFFIX,tinypic.com,Haita Cloud
+  - DOMAIN-SUFFIX,tmblr.co,Haita Cloud
+  - DOMAIN-SUFFIX,todoist.com,Haita Cloud
+  - DOMAIN-SUFFIX,trello.com,Haita Cloud
+  - DOMAIN-SUFFIX,trustasiassl.com,Haita Cloud
+  - DOMAIN-SUFFIX,tumblr.co,Haita Cloud
+  - DOMAIN-SUFFIX,tumblr.com,Haita Cloud
+  - DOMAIN-SUFFIX,tweetdeck.com,Haita Cloud
+  - DOMAIN-SUFFIX,tweetmarker.net,Haita Cloud
+  - DOMAIN-SUFFIX,twitch.tv,Haita Cloud
+  - DOMAIN-SUFFIX,txmblr.com,Haita Cloud
+  - DOMAIN-SUFFIX,typekit.net,Haita Cloud
+  - DOMAIN-SUFFIX,ubertags.com,Haita Cloud
+  - DOMAIN-SUFFIX,ublock.org,Haita Cloud
+  - DOMAIN-SUFFIX,ubnt.com,Haita Cloud
+  - DOMAIN-SUFFIX,ulyssesapp.com,Haita Cloud
+  - DOMAIN-SUFFIX,urchin.com,Haita Cloud
+  - DOMAIN-SUFFIX,usertrust.com,Haita Cloud
+  - DOMAIN-SUFFIX,v.gd,Haita Cloud
+  - DOMAIN-SUFFIX,v2ex.com,Haita Cloud
+  - DOMAIN-SUFFIX,vimeo.com,Haita Cloud
+  - DOMAIN-SUFFIX,vimeocdn.com,Haita Cloud
+  - DOMAIN-SUFFIX,vine.co,Haita Cloud
+  - DOMAIN-SUFFIX,vivaldi.com,Haita Cloud
+  - DOMAIN-SUFFIX,vox-cdn.com,Haita Cloud
+  - DOMAIN-SUFFIX,vsco.co,Haita Cloud
+  - DOMAIN-SUFFIX,vultr.com,Haita Cloud
+  - DOMAIN-SUFFIX,w.org,Haita Cloud
+  - DOMAIN-SUFFIX,w3schools.com,Haita Cloud
+  - DOMAIN-SUFFIX,webtype.com,Haita Cloud
+  - DOMAIN-SUFFIX,wikiwand.com,Haita Cloud
+  - DOMAIN-SUFFIX,wikileaks.org,Haita Cloud
+  - DOMAIN-SUFFIX,wikimedia.org,Haita Cloud
+  - DOMAIN-SUFFIX,wikipedia.com,Haita Cloud
+  - DOMAIN-SUFFIX,wikipedia.org,Haita Cloud
+  - DOMAIN-SUFFIX,windows.com,Haita Cloud
+  - DOMAIN-SUFFIX,windows.net,Haita Cloud
+  - DOMAIN-SUFFIX,wire.com,Haita Cloud
+  - DOMAIN-SUFFIX,wordpress.com,Haita Cloud
+  - DOMAIN-SUFFIX,workflowy.com,Haita Cloud
+  - DOMAIN-SUFFIX,wp.com,Haita Cloud
+  - DOMAIN-SUFFIX,wsj.com,Haita Cloud
+  - DOMAIN-SUFFIX,wsj.net,Haita Cloud
+  - DOMAIN-SUFFIX,xda-developers.com,Haita Cloud
+  - DOMAIN-SUFFIX,xeeno.com,Haita Cloud
+  - DOMAIN-SUFFIX,xiti.com,Haita Cloud
+  - DOMAIN-SUFFIX,yahoo.com,Haita Cloud
+  - DOMAIN-SUFFIX,yimg.com,Haita Cloud
+  - DOMAIN-SUFFIX,ying.com,Haita Cloud
+  - DOMAIN-SUFFIX,yoyo.org,Haita Cloud
+  - DOMAIN-SUFFIX,ytimg.com,Haita Cloud
+  - DOMAIN-SUFFIX,telegra.ph,Haita Cloud
+  - DOMAIN-SUFFIX,telegram.org,Haita Cloud
+  - IP-CIDR,91.108.4.0/22,Haita Cloud,no-resolve
+  - IP-CIDR,91.108.8.0/21,Haita Cloud,no-resolve
+  - IP-CIDR,91.108.16.0/22,Haita Cloud,no-resolve
+  - IP-CIDR,91.108.56.0/22,Haita Cloud,no-resolve
+  - IP-CIDR,149.154.160.0/20,Haita Cloud,no-resolve
+  - IP-CIDR6,2001:67c:4e8::/48,Haita Cloud,no-resolve
+  - IP-CIDR6,2001:b28:f23d::/48,Haita Cloud,no-resolve
+  - IP-CIDR6,2001:b28:f23f::/48,Haita Cloud,no-resolve
+  - IP-CIDR,120.232.181.162/32,Haita Cloud,no-resolve
+  - IP-CIDR,120.241.147.226/32,Haita Cloud,no-resolve
+  - IP-CIDR,120.253.253.226/32,Haita Cloud,no-resolve
+  - IP-CIDR,120.253.255.162/32,Haita Cloud,no-resolve
+  - IP-CIDR,120.253.255.34/32,Haita Cloud,no-resolve
+  - IP-CIDR,120.253.255.98/32,Haita Cloud,no-resolve
+  - IP-CIDR,180.163.150.162/32,Haita Cloud,no-resolve
+  - IP-CIDR,180.163.150.34/32,Haita Cloud,no-resolve
+  - IP-CIDR,180.163.151.162/32,Haita Cloud,no-resolve
+  - IP-CIDR,180.163.151.34/32,Haita Cloud,no-resolve
+  - IP-CIDR,203.208.39.0/24,Haita Cloud,no-resolve
+  - IP-CIDR,203.208.40.0/24,Haita Cloud,no-resolve
+  - IP-CIDR,203.208.41.0/24,Haita Cloud,no-resolve
+  - IP-CIDR,203.208.43.0/24,Haita Cloud,no-resolve
+  - IP-CIDR,203.208.50.0/24,Haita Cloud,no-resolve
+  - IP-CIDR,220.181.174.162/32,Haita Cloud,no-resolve
+  - IP-CIDR,220.181.174.226/32,Haita Cloud,no-resolve
+  - IP-CIDR,220.181.174.34/32,Haita Cloud,no-resolve
+  - DOMAIN,injections.adguard.org,DIRECT
+  - DOMAIN,local.adguard.org,DIRECT
+  - DOMAIN-SUFFIX,local,DIRECT
+  - IP-CIDR,127.0.0.0/8,DIRECT
+  - IP-CIDR,172.16.0.0/12,DIRECT
+  - IP-CIDR,192.168.0.0/16,DIRECT
+  - IP-CIDR,10.0.0.0/8,DIRECT
+  - IP-CIDR,17.0.0.0/8,DIRECT
+  - IP-CIDR,100.64.0.0/10,DIRECT
+  - IP-CIDR,224.0.0.0/4,DIRECT
+  - IP-CIDR6,fe80::/10,DIRECT
+  - DOMAIN-SUFFIX,cn,DIRECT
+  - DOMAIN-KEYWORD,-cn,DIRECT
+  - GEOIP,CN,DIRECT
+  - MATCH,Haita Cloud
