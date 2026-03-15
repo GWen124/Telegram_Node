@@ -6,6 +6,8 @@ import urllib.parse
 import sys
 import hashlib
 import json
+import re
+import concurrent.futures
 
 try:
     with open("clash_nodes.yaml", "r", encoding='utf-8') as f:
@@ -24,13 +26,34 @@ if not raw_proxies:
     sys.exit(0)
 
 # ==========================================
-# 1. 全局精准去重 & 防撞名保护
+# 1. 结构安全过滤 & 全局精准去重
 # ==========================================
 proxies = []
 seen_hashes = set()
-seen_names = set() # 记录已有的名字，防止内核因名字重复而崩溃
+seen_names = set() 
+
+# 合法的代理类型白名单
+VALID_TYPES = {'ss', 'ssr', 'vmess', 'vless', 'trojan', 'hysteria', 'hysteria2', 'tuic', 'wireguard', 'http', 'https', 'socks5', 'snell'}
 
 for p in raw_proxies:
+    try:
+        # 第一层装甲：基础字段严苛检查
+        if 'server' not in p or not str(p['server']).strip(): continue
+        if 'port' not in p or not str(p['port']).strip(): continue
+        if 'type' not in p or not str(p['type']).strip(): continue
+        
+        port = int(p['port'])
+        if not (1 <= port <= 65535): continue
+        
+        ptype = str(p.get('type', '')).lower()
+        if ptype not in VALID_TYPES: continue
+        
+        if ptype in ['vless', 'vmess'] and ('uuid' not in p or len(str(p['uuid'])) < 5): continue
+        if ptype == 'trojan' and ('password' not in p or len(str(p['password'])) < 1): continue
+        if ptype == 'hysteria2' and ('password' not in p): continue
+    except:
+        continue
+
     p_config = {k: v for k, v in p.items() if k != 'name'}
     config_str = json.dumps(p_config, sort_keys=True)
     config_hash = hashlib.md5(config_str.encode('utf-8')).hexdigest()
@@ -38,7 +61,6 @@ for p in raw_proxies:
     if config_hash not in seen_hashes:
         seen_hashes.add(config_hash)
         
-        # 防撞名机制：如果名字重复，自动在后面加数字，保证配置合法
         original_name = str(p.get('name', 'Unnamed'))
         new_name = original_name
         counter = 1
@@ -50,7 +72,12 @@ for p in raw_proxies:
         
         proxies.append(p)
 
-print(f"✅ 全局去重完毕: 抓取总计 {len(raw_proxies)} 个，去重后剩余 {len(proxies)} 个物理独立节点。")
+print(f"✅ 全局去重完毕: 抓取总计 {len(raw_proxies)} 个，初步安全过滤后剩余 {len(proxies)} 个独立节点。")
+
+# ==========================================
+# 2. 内核级“预检与自我净化” 
+# ==========================================
+print("\n🛡️ 启动 Mihomo 内核级预检机制，查杀导致崩溃的毒瘤节点...")
 
 mihomo_config = {
     "allow-lan": True,
@@ -58,22 +85,61 @@ mihomo_config = {
     "external-controller": "127.0.0.1:9090",
     "proxies": proxies
 }
-with open("mihomo_config.yaml", "w", encoding='utf-8') as f:
-    yaml.dump(mihomo_config, f, allow_unicode=True)
 
-print("启动 Mihomo 进行测速...")
+max_retries = 30
+for attempt in range(max_retries):
+    mihomo_config["proxies"] = proxies
+    with open("mihomo_config.yaml", "w", encoding='utf-8') as f:
+        yaml.dump(mihomo_config, f, allow_unicode=True)
+
+    result = subprocess.run(["./mihomo", "-d", ".", "-f", "mihomo_config.yaml", "-t"], capture_output=True, text=True)
+
+    if result.returncode == 0:
+        print(f"✅ 内核预检完全通过！最终剩余绝对安全节点: {len(proxies)} 个。")
+        break
+    else:
+        error_log = result.stdout + result.stderr
+        culprit = None
+        
+        matches = re.findall(r'\[([^\]]+)\]', error_log)
+        for m in matches:
+            if any(p['name'] == m for p in proxies):
+                culprit = m
+                break
+                
+        if not culprit:
+            match_index = re.search(r'proxy (\d+):', error_log)
+            if match_index:
+                idx = int(match_index.group(1))
+                if 0 <= idx < len(proxies):
+                    culprit = proxies[idx]['name']
+
+        if not culprit:
+            for p in proxies:
+                if p['name'] in error_log:
+                    culprit = p['name']
+                    break
+        
+        if culprit:
+            print(f"  [⚠️ 预检拦截] 发现毒瘤节点 [{culprit}]，已将其从配置中永久剔除！(循环重试 {attempt+1}/{max_retries})")
+            proxies = [p for p in proxies if p['name'] != culprit]
+        else:
+            print(f"❌ 无法自动定位损坏节点。内核真实报错细节:\n{error_log[-800:]}")
+            print("\n⚠️ 启用【安全熔断模式】：强制截断节点。")
+            proxies = proxies[:100]
+            break
+
+# ==========================================
+# 3. 多线程并发测速 (超级加速版)
+# ==========================================
+print("\n🚀 预检完成，正式启动 Mihomo 内核进行并发极限测速...")
 process = subprocess.Popen(["./mihomo", "-d", ".", "-f", "mihomo_config.yaml"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-# 增加等待时间，因为几百个节点内核启动需要一点时间
-time.sleep(5) 
+time.sleep(4) 
 
-valid_proxies = []
-
-# ==========================================
-# 2. 测速机制
-# ==========================================
 MAX_DELAY = 2500 
 
-def test_proxy(name, retries=2):
+def test_proxy(p, retries=2):
+    name = p['name']
     encoded_name = urllib.parse.quote(name)
     test_url = f"http://127.0.0.1:9090/proxies/{encoded_name}/delay?timeout={MAX_DELAY}&url=https://www.gstatic.com/generate_204"
     
@@ -83,33 +149,41 @@ def test_proxy(name, retries=2):
             if res.status_code == 200 and "delay" in res.json():
                 delay = res.json()['delay']
                 if delay > 0:
-                    return delay
+                    return p, delay
         except:
             pass
         if attempt < retries - 1:
             time.sleep(0.5)
             
-    return 0
+    return p, 0
 
-print(f"开始进行【双重验证】连通性测试 (限时 {MAX_DELAY}ms)...")
-for p in proxies:
-    original_name = p['name']
-    delay = test_proxy(original_name)
+valid_proxies = []
+print(f"开始进行【双重验证】并发连通性测试 (限时 {MAX_DELAY}ms，50 线程狂飙)...")
+
+# 核心升级：使用 ThreadPoolExecutor 开启 50 个并发线程同时测速
+with concurrent.futures.ThreadPoolExecutor(max_workers=50) as executor:
+    # 提交所有测速任务
+    future_to_proxy = {executor.submit(test_proxy, p): p for p in proxies}
     
-    if 0 < delay <= MAX_DELAY:
-        print(f"[✅ 保留] {original_name} - 延迟: {delay}ms")
-        valid_proxies.append(p)
-    elif delay > MAX_DELAY:
-        print(f"[⚠️ 太慢剔除] {original_name} - 延迟: {delay}ms")
-    else:
-        print(f"[❌ 彻底死链] {original_name} - 测速超时或失效")
+    # 异步收集结果，谁先测完就先处理谁
+    for future in concurrent.futures.as_completed(future_to_proxy):
+        p, delay = future.result()
+        original_name = p['name']
+        
+        if 0 < delay <= MAX_DELAY:
+            print(f"[✅ 保留] {original_name} - 延迟: {delay}ms")
+            valid_proxies.append(p)
+        elif delay > MAX_DELAY:
+            print(f"[⚠️ 太慢剔除] {original_name} - 延迟: {delay}ms")
+        else:
+            print(f"[❌ 彻底死链] {original_name} - 测速超时或失效")
 
 process.terminate()
 
 # ==========================================
-# 3. 智能归属地查询与重命名
+# 4. 智能归属地查询与重命名
 # ==========================================
-print("\n正在查询节点 IP 归属地并重新命名...")
+print("\n正在查询存活节点 IP 归属地并重新命名...")
 country_counters = {}
 ip_cache = {} 
 
@@ -122,7 +196,8 @@ def get_country(server):
             country = res.get('country', '未知地区')
             country = country.replace("中国香港", "香港").replace("中国台湾", "台湾").replace("中国澳门", "澳门").replace("美利坚合众国", "美国")
             ip_cache[server] = country
-            time.sleep(0.1) 
+            # 免费接口限频 45次/分钟，为了防止被封，每个新 IP 查询后停顿 1.5 秒
+            time.sleep(1.5) 
             return country
     except:
         pass
@@ -143,8 +218,11 @@ for p in valid_proxies:
     print(f"  🏷️  重命名: {server} -> {new_name}")
 
 # ==========================================
-# 4. 生成最终配置文件
+# 5. 生成最终配置文件
 # ==========================================
+# 按照延迟对存活节点进行排序，越快的排在越前面
+valid_proxies.sort(key=lambda x: x.get('name', ''))
+
 final_output = {
     "proxies": valid_proxies,
     "proxy-groups": [
