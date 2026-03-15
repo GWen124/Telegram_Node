@@ -1,244 +1,237 @@
-import yaml
-import requests
-import subprocess
-import time
-import urllib.parse
-import sys
-import hashlib
-import json
 import re
-import concurrent.futures
+import requests
+import base64
+import urllib.parse
+import json
+import hashlib
+import yaml
 
 # ==========================================
-# 👑 核心测速参数：宁缺毋滥的门槛 (单位：毫秒)
+# 1. 订阅源配置
 # ==========================================
-# 1500 = 1.5秒淘汰制 (精英模式，推荐)
-# 1000 = 1.0秒淘汰制 (严苛模式，只要极品)
-# 800  = 0.8秒淘汰制 (变态级，堪比付费专线)
-MAX_DELAY = 1000
-# ==========================================
+CHANNELS = [
+    'https://t.me/s/proxygogogo',
+    'https://t.me/s/freekankan',
+    'https://t.me/s/freeVPNjd'
+]
 
-try:
-    with open("clash_nodes.yaml", "r", encoding='utf-8') as f:
-        data = yaml.safe_load(f)
-except Exception as e:
-    print(f"读取 YAML 失败: {e}")
-    sys.exit(1)
+# 引入了你提供的所有宝藏节点库，这里写死，不再让脚本自我修改
+EXTERNAL_URLS = [
+    "https://raw.githubusercontent.com/ovmvo/FreeSub/refs/heads/main/sub/permanent/mihomo.yaml",
+    "https://raw.githubusercontent.com/clashv2ray-hub/v2rayfree/refs/heads/main/v2ray.txt",
+    "https://raw.githubusercontent.com/shaoyouvip/free/refs/heads/main/all.yaml",
+    "https://raw.githubusercontent.com/Pawdroid/Free-servers/refs/heads/main/sub",
+    "https://raw.githubusercontent.com/PuddinCat/BestClash/refs/heads/main/proxies.yaml",
+    "https://raw.githubusercontent.com/telegeam/freenode/refs/heads/master/v2ray.txt",
+    "https://raw.githubusercontent.com/telegeam/freenode/refs/heads/master/clash.yaml",
+    "https://raw.githubusercontent.com/ccpthisbigdog/freedomchina/refs/heads/main/subdom.txt",
+    "https://raw.githubusercontent.com/ccpthisbigdog/freedomchina/refs/heads/main/clab.yaml",
+    "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt",
+    "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.meta.yml",
+    "https://raw.githubusercontent.com/ripaojiedian/freenode/main/clash",
+    "https://raw.githubusercontent.com/ripaojiedian/freenode/main/sub",
+    "https://raw.githubusercontent.com/free18/v2ray/refs/heads/main/c.yaml",
+    "https://raw.githubusercontent.com/free18/v2ray/refs/heads/main/v.txt",
+    "https://beacon-api.ssdxz.cn/sub?token=b7013ff726878124d363c1680f59de74&b64",
+    "https://raw.githubusercontent.com/4n0nymou3/multi-proxy-config-fetcher/main/configs/proxy_configs.txt",
+    "https://raw.githubusercontent.com/4n0nymou3/multi-proxy-config-fetcher/main/configs/clash_configs.yaml",
+    "https://raw.githubusercontent.com/4n0nymou3/multi-proxy-config-fetcher/main/configs/v2ray_configs.txt",
+    "https://gist.githubusercontent.com/shuaidaoya/9e5cf2749c0ce79932dd9229d9b4162b/raw/base64.txt"
+]
 
-if not isinstance(data, dict):
-    print(f"❌ 严重错误: Subconverter 转换节点失败！返回内容为: {data}")
-    sys.exit(1)
-
-raw_proxies = data.get("proxies", [])
-if not raw_proxies:
-    print("没有找到任何可用代理节点，退出。")
-    sys.exit(0)
-
-# ==========================================
-# 1. 结构安全过滤 & 全局精准去重
-# ==========================================
-proxies = []
-seen_hashes = set()
-seen_names = set() 
-
-# 合法的代理类型白名单，防止内核解析异形节点崩溃
-VALID_TYPES = {'ss', 'ssr', 'vmess', 'vless', 'trojan', 'hysteria', 'hysteria2', 'tuic', 'wireguard', 'http', 'https', 'socks5', 'snell'}
-
-for p in raw_proxies:
-    try:
-        # 第一层装甲：基础字段严苛检查
-        if 'server' not in p or not str(p['server']).strip(): continue
-        if 'port' not in p or not str(p['port']).strip(): continue
-        if 'type' not in p or not str(p['type']).strip(): continue
-        
-        port = int(p['port'])
-        if not (1 <= port <= 65535): continue
-        
-        ptype = str(p.get('type', '')).lower()
-        if ptype not in VALID_TYPES: continue
-        
-        if ptype in ['vless', 'vmess'] and ('uuid' not in p or len(str(p['uuid'])) < 5): continue
-        if ptype == 'trojan' and ('password' not in p or len(str(p['password'])) < 1): continue
-        if ptype == 'hysteria2' and ('password' not in p): continue
-    except:
-        continue
-
-    p_config = {k: v for k, v in p.items() if k != 'name'}
-    config_str = json.dumps(p_config, sort_keys=True)
-    config_hash = hashlib.md5(config_str.encode('utf-8')).hexdigest()
-    
-    if config_hash not in seen_hashes:
-        seen_hashes.add(config_hash)
-        
-        original_name = str(p.get('name', 'Unnamed'))
-        new_name = original_name
-        counter = 1
-        while new_name in seen_names:
-            new_name = f"{original_name} {counter}"
-            counter += 1
-        seen_names.add(new_name)
-        p['name'] = new_name
-        
-        proxies.append(p)
-
-print(f"✅ 全局去重完毕: 抓取总计 {len(raw_proxies)} 个，初步安全过滤后剩余 {len(proxies)} 个独立节点。")
+DYNAMIC_REPOS = [
+    "free-nodes/v2rayfree", 
+    "free-nodes/clashfree",
+    "Jsnzkpg/Jsnzkpg"
+]
 
 # ==========================================
-# 2. 内核级“预检与自我净化” 
+# 2. 核心探测与统计函数
 # ==========================================
-print("\n🛡️ 启动 Mihomo 内核级预检机制，查杀导致崩溃的毒瘤节点...")
-
-mihomo_config = {
-    "allow-lan": True,
-    "bind-address": "*",
-    "external-controller": "127.0.0.1:9090",
-    "proxies": proxies
-}
-
-max_retries = 30
-for attempt in range(max_retries):
-    mihomo_config["proxies"] = proxies
-    with open("mihomo_config.yaml", "w", encoding='utf-8') as f:
-        yaml.dump(mihomo_config, f, allow_unicode=True)
-
-    result = subprocess.run(["./mihomo", "-d", ".", "-f", "mihomo_config.yaml", "-t"], capture_output=True, text=True)
-
-    if result.returncode == 0:
-        print(f"✅ 内核预检完全通过！最终剩余绝对安全节点: {len(proxies)} 个。")
-        break
-    else:
-        error_log = result.stdout + result.stderr
-        culprit = None
-        
-        matches = re.findall(r'\[([^\]]+)\]', error_log)
-        for m in matches:
-            if any(p['name'] == m for p in proxies):
-                culprit = m
-                break
-                
-        if not culprit:
-            match_index = re.search(r'proxy (\d+):', error_log)
-            if match_index:
-                idx = int(match_index.group(1))
-                if 0 <= idx < len(proxies):
-                    culprit = proxies[idx]['name']
-
-        if not culprit:
-            for p in proxies:
-                if p['name'] in error_log:
-                    culprit = p['name']
-                    break
-        
-        if culprit:
-            print(f"  [⚠️ 预检拦截] 发现毒瘤节点 [{culprit}]，已将其从配置中永久剔除！(循环重试 {attempt+1}/{max_retries})")
-            proxies = [p for p in proxies if p['name'] != culprit]
-        else:
-            print(f"❌ 无法自动定位损坏节点。内核真实报错细节:\n{error_log[-800:]}")
-            print("\n⚠️ 启用【安全熔断模式】：强制截断节点。")
-            proxies = proxies[:100]
-            break
-
-# ==========================================
-# 3. 多线程并发测速 (超级加速版)
-# ==========================================
-print(f"\n🚀 预检完成，正式启动 Mihomo 内核进行并发极限测速 (超时门槛: {MAX_DELAY}ms)...")
-process = subprocess.Popen(["./mihomo", "-d", ".", "-f", "mihomo_config.yaml"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-time.sleep(4) 
-
-def test_proxy(p, retries=2):
-    name = p['name']
-    encoded_name = urllib.parse.quote(name)
-    test_url = f"http://127.0.0.1:9090/proxies/{encoded_name}/delay?timeout={MAX_DELAY}&url=https://www.gstatic.com/generate_204"
-    
-    for attempt in range(retries):
+def count_nodes_in_text(text, is_yaml=False):
+    if is_yaml or 'proxies:' in text:
         try:
-            res = requests.get(test_url, timeout=(MAX_DELAY/1000) + 1.5)
-            if res.status_code == 200 and "delay" in res.json():
-                delay = res.json()['delay']
-                if delay > 0:
-                    return p, delay
-        except:
-            pass
-        if attempt < retries - 1:
-            time.sleep(0.5)
+            data = yaml.safe_load(text)
+            if isinstance(data, dict) and 'proxies' in data:
+                return len(data['proxies'])
+        except: pass
             
-    return p, 0
-
-valid_proxies = []
-print(f"开始进行【双重验证】并发连通性测试 (50 线程狂飙)...")
-
-with concurrent.futures.ThreadPoolExecutor(max_workers=50) as executor:
-    future_to_proxy = {executor.submit(test_proxy, p): p for p in proxies}
-    
-    for future in concurrent.futures.as_completed(future_to_proxy):
-        p, delay = future.result()
-        original_name = p['name']
-        
-        if 0 < delay <= MAX_DELAY:
-            print(f"[✅ 保留] {original_name} - 延迟: {delay}ms")
-            valid_proxies.append(p)
-        elif delay > MAX_DELAY:
-            print(f"[⚠️ 太慢剔除] {original_name} - 延迟: {delay}ms")
-        else:
-            print(f"[❌ 彻底死链] {original_name} - 测速超时或失效")
-
-process.terminate()
-
-# ==========================================
-# 4. 智能归属地查询与重命名
-# ==========================================
-print("\n正在查询存活节点 IP 归属地并重新命名...")
-country_counters = {}
-ip_cache = {} 
-
-def get_country(server):
-    if server in ip_cache:
-        return ip_cache[server]
     try:
-        res = requests.get(f"http://ip-api.com/json/{server}?lang=zh-CN", timeout=3).json()
-        if res.get('status') == 'success':
-            country = res.get('country', '未知地区')
-            country = country.replace("中国香港", "香港").replace("中国台湾", "台湾").replace("中国澳门", "澳门").replace("美利坚合众国", "美国")
-            ip_cache[server] = country
-            time.sleep(1.5) 
-            return country
-    except:
-        pass
-    ip_cache[server] = '未知地区'
-    return '未知地区'
-
-for p in valid_proxies:
-    server = p.get('server', '')
-    country = get_country(server)
-    
-    if country not in country_counters:
-        country_counters[country] = 1
-    else:
-        country_counters[country] += 1
+        matches = re.findall(r'(vmess|vless|ss|ssr|trojan|hysteria2|tuic)://', text)
+        if len(matches) > 0: return len(matches)
+    except: pass
         
-    new_name = f"{country} {country_counters[country]:02d}"
-    p['name'] = new_name
-    print(f"  🏷️  重命名: {server} -> {new_name}")
+    try:
+        padded_text = text.strip() + "=" * ((4 - len(text.strip()) % 4) % 4)
+        dec = base64.b64decode(padded_text).decode('utf-8', errors='ignore')
+        matches = re.findall(r'(vmess|vless|ss|ssr|trojan|hysteria2|tuic)://', dec)
+        if len(matches) > 0: return len(matches)
+    except: pass
+        
+    return 0
 
-# ==========================================
-# 5. 生成最终配置文件
-# ==========================================
-valid_proxies.sort(key=lambda x: x.get('name', ''))
-
-final_output = {
-    "proxies": valid_proxies,
-    "proxy-groups": [
-        {
-            "name": "🚀 自动选择",
-            "type": "url-test",
-            "proxies": [p['name'] for p in valid_proxies],
-            "url": "https://www.gstatic.com/generate_204",
-            "interval": 3600
-        }
-    ]
-}
-
-with open("final_sub.yaml", "w", encoding='utf-8') as f:
-    yaml.dump(final_output, f, allow_unicode=True, sort_keys=False)
+def get_and_heal_tg_nodes():
+    print("\n" + "="*50)
+    print("📡 阶段 1: 抓取 Telegram 频道野生节点")
+    print("="*50)
+    raw_nodes = []
+    raw_pattern = re.compile(r'(vmess|vless|ss|ssr|trojan|hysteria2|tuic)://[^\s\'"<>]+')
+    sub_pattern = re.compile(r'https?://[^\s\'"<>]+')
     
-print(f"\n🎉 测速与归属地重命名完成！在 {MAX_DELAY}ms 的严苛标准下，最终保留极品节点 {len(valid_proxies)} 个。")
+    for url in CHANNELS:
+        try:
+            res = requests.get(url, timeout=10).text
+            channel_count = 0
+            for m in raw_pattern.finditer(res):
+                raw_nodes.append(m.group(0))
+                channel_count += 1
+            for m in sub_pattern.finditer(res):
+                sub_url = m.group(0)
+                if "t.me" in sub_url: continue 
+                try:
+                    sub_res = requests.get(sub_url, timeout=5).text
+                    decoded = base64.b64decode(sub_res).decode('utf-8', errors='ignore')
+                    for rm in raw_pattern.finditer(decoded):
+                        raw_nodes.append(rm.group(0))
+                        channel_count += 1
+                except: pass 
+            print(f"  [✅ 成功] 获取 {channel_count:3} 个节点 <- {url}")
+        except Exception as e:
+            print(f"  [❌ 失败] 无法访问 <- {url}")
+
+    clean_nodes = []
+    seen_configs = set()
+    for node in raw_nodes:
+        try:
+            if node.startswith("vmess://"):
+                b64_str = node[8:].split('#')[0] 
+                b64_str += "=" * ((4 - len(b64_str) % 4) % 4)
+                v_json = json.loads(base64.b64decode(b64_str).decode('utf-8'))
+                v_config = {k: v for k, v in v_json.items() if k != 'ps'}
+                config_hash = hashlib.md5(str(v_config).encode()).hexdigest()
+                if config_hash in seen_configs: continue
+                seen_configs.add(config_hash)
+                clean_node = "vmess://" + base64.b64encode(json.dumps(v_json, separators=(',', ':')).encode('utf-8')).decode('utf-8')
+                clean_nodes.append(clean_node)
+            else:
+                parts = node.split('#', 1)
+                config_part = parts[0]
+                config_hash = hashlib.md5(config_part.encode()).hexdigest()
+                if config_hash in seen_configs: continue
+                seen_configs.add(config_hash)
+                if len(parts) > 1:
+                    safe_name = urllib.parse.quote(urllib.parse.unquote(parts[1]))
+                    clean_nodes.append(f"{config_part}#{safe_name}")
+                else:
+                    clean_nodes.append(config_part)
+        except: continue
+        
+    print(f"  --> 净化与初步去重后，TG 频道共保留 {len(clean_nodes)} 个有效节点。")
+    return clean_nodes
+
+def check_external_links():
+    print("\n" + "="*50)
+    print("🔗 阶段 2: 探测固定外部订阅源 (安全隔离版)")
+    print("="*50)
+    valid_urls = []
+    
+    for url in EXTERNAL_URLS:
+        is_yaml = url.endswith('.yaml') or url.endswith('.yml') or '/clash' in url or 'proxies' in url
+        try:
+            res = requests.get(url, timeout=10)
+            if res.status_code == 200:
+                count = count_nodes_in_text(res.text, is_yaml)
+                if count > 0:
+                    print(f"  [✅ 存活] 发现 {count:3} 个节点 <- {url}")
+                    valid_urls.append(url)
+                else:
+                    print(f"  [⚠️ 空链] 未发现节点 <- {url} (暂时跳过)")
+            else:
+                print(f"  [❌ 报错] HTTP {res.status_code} <- {url} (暂时跳过)")
+        except Exception as e:
+            print(f"  [❌ 超时] 无法连接 <- {url} (暂时跳过)")
+
+    return valid_urls
+
+def get_dynamic_links():
+    print("\n" + "="*50)
+    print("📅 阶段 3: 智能嗅探动态仓库 (API & README 双引擎)")
+    print("="*50)
+    dynamic_urls = []
+    
+    for repo in DYNAMIC_REPOS:
+        repo_success = False
+        try:
+            api_url = f"https://api.github.com/repos/{repo}/contents"
+            res = requests.get(api_url, timeout=5)
+            if res.status_code == 200:
+                items = res.json()
+                files = [i for i in items if i['type'] == 'file' and i['name'] not in ('README.md', 'LICENSE', '.gitignore')]
+                files.sort(key=lambda x: x['name'], reverse=True)
+                
+                hit_count = 0
+                for file_info in files:
+                    latest_url = file_info['download_url']
+                    check_res = requests.get(latest_url, timeout=5)
+                    count = count_nodes_in_text(check_res.text, latest_url.endswith(('.yaml', '.yml')))
+                    if count > 0:
+                        print(f"  [✅ API命中] 发现 {count:3} 个节点 <- {latest_url}")
+                        dynamic_urls.append(latest_url)
+                        repo_success = True
+                        hit_count += 1
+                        if hit_count >= 4: 
+                            break 
+        except Exception as e:
+            pass
+            
+        if not repo_success:
+            try:
+                readme_url = f"https://raw.githubusercontent.com/{repo}/main/README.md"
+                res = requests.get(readme_url, timeout=5)
+                if res.status_code == 200:
+                    pattern = r"https://raw\.githubusercontent\.com/" + re.escape(repo) + r"/main/[a-zA-Z0-9_.-]+"
+                    matches = re.findall(pattern, res.text)
+                    valid_links = []
+                    for m in matches:
+                        if not m.endswith('.md') and m not in valid_links:
+                            valid_links.append(m)
+                    
+                    for link in valid_links[:2]:
+                        check_res = requests.get(link, timeout=5)
+                        count = count_nodes_in_text(check_res.text, link.endswith(('.yaml', '.yml')))
+                        if count > 0:
+                            print(f"  [✅ 文档命中] 发现 {count:3} 个节点 <- {link}")
+                            dynamic_urls.append(link)
+                            break
+            except Exception as e:
+                print(f"  [❌ 嗅探失败] 无法获取 {repo} 的节点")
+                
+    return dynamic_urls
+
+if __name__ == "__main__":
+    tg_nodes = get_and_heal_tg_nodes()
+    valid_external_urls = check_external_links()
+    dynamic_urls = get_dynamic_links()
+    
+    print("\n" + "="*50)
+    print("🚀 阶段 4: 资源聚合与下发")
+    print("="*50)
+    
+    if tg_nodes:
+        final_string = "\n".join(tg_nodes)
+        b64_content = base64.b64encode(final_string.encode('utf-8')).decode('utf-8')
+        with open("tg_nodes.txt", "w", encoding='utf-8') as f:
+            f.write(b64_content)
+    else:
+        with open("tg_nodes.txt", "w") as f: f.write("")
+    
+    all_urls = ["http://127.0.0.1:8000/tg_nodes.txt"] + valid_external_urls + dynamic_urls
+    encoded_url = urllib.parse.quote("|".join(all_urls))
+    
+    sub_api = f"http://127.0.0.1:25500/sub?target=clash&url={encoded_url}&insert=false"
+    
+    with open("sub_api_url.txt", "w") as f:
+        f.write(sub_api)
+        
+    print(f"  --> 过滤死链后，最终下发给 Subconverter 的有效订阅入口: {len(all_urls)} 个。")
+    print("  --> 等待 check.py 进行全局底层去重与极速测速...\n")
