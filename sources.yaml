@@ -30,9 +30,3 @@ EXTERNAL_URLS:
   - "https://raw.githubusercontent.com/4n0nymou3/multi-proxy-config-fetcher/main/configs/clash_configs.yaml"
   - "https://raw.githubusercontent.com/4n0nymou3/multi-proxy-config-fetcher/main/configs/v2ray_configs.txt"
   - "https://gist.githubusercontent.com/shuaidaoya/9e5cf2749c0ce79932dd9229d9b4162b/raw/base64.txt"
-
-# 3. 动态嗅探的 GitHub 仓库源
-DYNAMIC_REPOS:
-  - "free-nodes/v2rayfree"
-  - "free-nodes/clashfree"
-  - "Jsnzkpg/Jsnzkpg"
