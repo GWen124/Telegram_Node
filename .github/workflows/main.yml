@@ -4,35 +4,35 @@ name: 🚀 Auto Update Network Nodes
 # 触发条件设置
 # ==========================================
 on:
-  workflow_dispatch: # 允许在网页端手动点击 "Run workflow" 运行
+  workflow_dispatch: 
   schedule:
-    - cron: '0 */3 * * *' # 每 3 小时自动执行
+    - cron: '0 0 * * *' 
   push:
     paths:
-      - 'sources.yaml'   # 当你修改这个配置文件时自动触发
-      - 'Nodes/**'       # 当你在 Nodes 文件夹里增加或修改节点文件时自动触发
+      - 'sources.yaml'   
+      - 'Nodes/**'       
 
 jobs:
   run-all:
     runs-on: ubuntu-24.04
     permissions:
-      contents: write # 赋予 GitHub Action 推送代码的权限
+      contents: write 
 
     steps:
-      - name: 1. Checkout Repository (拉取仓库代码)
+      - name: 1. Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: 2. Setup Python 3.10 (配置 Python 环境)
+      - name: 2. Setup Python 3.10
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: 3. Install Python Dependencies (安装依赖)
+      - name: 3. Install Python Dependencies
         run: pip install requests pyyaml
 
-      - name: 4. Install & Connect Cloudflare WARP (配置网络防屏蔽环境)
+      - name: 4. Install & Connect Cloudflare WARP
         run: |
           curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
           echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
@@ -43,50 +43,44 @@ jobs:
           sleep 5
           curl -4 ifconfig.me
 
-      - name: 5. Run fetch.py (执行动态抓取与聚合)
+      - name: 5. Run fetch.py
         run: python fetch.py
 
-      - name: 6. Subconverter Parse (解析转换节点格式)
+      - name: 6. Subconverter Parse (使用 cmliu 增强版内核)
         run: |
-          # 启动 Subconverter 容器
-          docker run -d --network host ghcr.io/metacubex/subconverter:latest
+          docker run -d --network host cmliu/subconverter:latest
           sleep 5
           
-          # 🌟 核心防冲突：先杀掉可能残留的进程，然后再启动本地 HTTP 服务
+          # 核心防冲突：先杀掉可能残留的进程，然后再启动本地 HTTP 服务
           fuser -k 8000/tcp || true
           python -m http.server 8000 &
           sleep 2
           
-          # 通过 Subconverter 获取初筛并转换好的节点配置
+          # 通过增强版 Subconverter 获取初筛并转换好的节点配置
           API_URL=$(cat sub_api_url.txt)
           curl -s "$API_URL" > clash_nodes.yaml
 
-      - name: 7. Run Mihomo Speed Test (启动 Mihomo 内核硬核测速)
+      - name: 7. Run Mihomo Speed Test
         run: |
-          # 下载最新的 Mihomo 内核
           wget https://github.com/MetaCubeX/mihomo/releases/download/v1.18.3/mihomo-linux-amd64-v1.18.3.gz
           gunzip mihomo-linux-amd64-v1.18.3.gz
           mv mihomo-linux-amd64-v1.18.3 mihomo
           chmod +x mihomo
-          
-          # 执行精筛测速与去重
           python check.py
 
-      - name: 8. Generate Universal Base64 Sub (生成通用 txt 订阅格式)
+      - name: 8. Generate Universal Base64 Sub
         run: |
-          # 利用刚才启动的 HTTP 服务和 Subconverter，将 yaml 转回 txt 通用格式
+          # 🌟 现在生成 TXT 时，cmliu 的转换器会保留所有的前沿新协议节点！
           curl -s "http://127.0.0.1:25500/sub?target=mixed&url=http://127.0.0.1:8000/final_sub.yaml" > final_sub.txt
 
-      - name: 9. Commit & Push (提交并推送生成的极品节点)
+      - name: 9. Commit & Push
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Action"
           
-          # 将生成的文件、配置文件、可能新建的Nodes文件夹加入暂存区
           git add final_sub.yaml final_sub.txt tg_nodes.txt sources.yaml Nodes/ || true
           
           git commit -m "🚀 Auto update High-Speed nodes: $(date)" || echo "No changes to commit"
           
-          # 终极无敌防冲突合并策略
           git pull origin main --rebase=false -X ours || (git add tg_nodes.txt final_sub.yaml final_sub.txt || true && git commit -m "Auto resolve merge conflicts" || true)
           git push
