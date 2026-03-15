@@ -16,7 +16,7 @@ CHANNELS = [
     'https://t.me/s/freeVPNjd'
 ]
 
-# 引入了你提供的所有宝藏节点库
+# 引入了你提供的所有宝藏节点库，包含 Gist 链接
 EXTERNAL_URLS = [
     "https://raw.githubusercontent.com/ovmvo/FreeSub/refs/heads/main/sub/permanent/mihomo.yaml",
     "https://raw.githubusercontent.com/clashv2ray-hub/v2rayfree/refs/heads/main/v2ray.txt",
@@ -35,6 +35,8 @@ EXTERNAL_URLS = [
     "https://raw.githubusercontent.com/free18/v2ray/refs/heads/main/v.txt",
     "https://beacon-api.ssdxz.cn/sub?token=b7013ff726878124d363c1680f59de74&b64",
     "https://raw.githubusercontent.com/4n0nymou3/multi-proxy-config-fetcher/main/configs/proxy_configs.txt",
+    "https://raw.githubusercontent.com/4n0nymou3/multi-proxy-config-fetcher/main/configs/clash_configs.yaml",
+    "https://raw.githubusercontent.com/4n0nymou3/multi-proxy-config-fetcher/main/configs/v2ray_configs.txt",
     "https://gist.githubusercontent.com/shuaidaoya/9e5cf2749c0ce79932dd9229d9b4162b/raw/base64.txt"
 ]
 
@@ -140,50 +142,14 @@ def remove_dead_links_from_code(valid_urls):
         with open(__file__, 'r', encoding='utf-8') as f:
             content = f.read()
 
+        # 🚀 终极防手残重写：使用三引号彻底杜绝语法报错
         if not valid_urls:
-            # 采用最安全的字符串构建方式，杜绝多行报错
-            new_list_str = "EXTERNAL_URLS = [
-    "https://raw.githubusercontent.com/ovmvo/FreeSub/refs/heads/main/sub/permanent/mihomo.yaml",
-    "https://raw.githubusercontent.com/clashv2ray-hub/v2rayfree/refs/heads/main/v2ray.txt",
-    "https://raw.githubusercontent.com/shaoyouvip/free/refs/heads/main/all.yaml",
-    "https://raw.githubusercontent.com/Pawdroid/Free-servers/refs/heads/main/sub",
-    "https://raw.githubusercontent.com/PuddinCat/BestClash/refs/heads/main/proxies.yaml",
-    "https://raw.githubusercontent.com/telegeam/freenode/refs/heads/master/v2ray.txt",
-    "https://raw.githubusercontent.com/telegeam/freenode/refs/heads/master/clash.yaml",
-    "https://raw.githubusercontent.com/ccpthisbigdog/freedomchina/refs/heads/main/subdom.txt",
-    "https://raw.githubusercontent.com/ccpthisbigdog/freedomchina/refs/heads/main/clab.yaml",
-    "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt",
-    "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.meta.yml",
-    "https://raw.githubusercontent.com/ripaojiedian/freenode/main/clash",
-    "https://raw.githubusercontent.com/ripaojiedian/freenode/main/sub",
-    "https://raw.githubusercontent.com/free18/v2ray/refs/heads/main/c.yaml",
-    "https://raw.githubusercontent.com/free18/v2ray/refs/heads/main/v.txt",
-    "https://beacon-api.ssdxz.cn/sub?token=b7013ff726878124d363c1680f59de74&b64",
-    "https://raw.githubusercontent.com/4n0nymou3/multi-proxy-config-fetcher/main/configs/proxy_configs.txt",
-    "https://gist.githubusercontent.com/shuaidaoya/9e5cf2749c0ce79932dd9229d9b4162b/raw/base64.txt"
-]"
+            new_list_str = "EXTERNAL_URLS = []"
         else:
             urls_formatted = ",\n    ".join([f'"{url}"' for url in valid_urls])
-            new_list_str = "EXTERNAL_URLS = [
-    "https://raw.githubusercontent.com/ovmvo/FreeSub/refs/heads/main/sub/permanent/mihomo.yaml",
-    "https://raw.githubusercontent.com/clashv2ray-hub/v2rayfree/refs/heads/main/v2ray.txt",
-    "https://raw.githubusercontent.com/shaoyouvip/free/refs/heads/main/all.yaml",
-    "https://raw.githubusercontent.com/Pawdroid/Free-servers/refs/heads/main/sub",
-    "https://raw.githubusercontent.com/PuddinCat/BestClash/refs/heads/main/proxies.yaml",
-    "https://raw.githubusercontent.com/telegeam/freenode/refs/heads/master/v2ray.txt",
-    "https://raw.githubusercontent.com/telegeam/freenode/refs/heads/master/clash.yaml",
-    "https://raw.githubusercontent.com/ccpthisbigdog/freedomchina/refs/heads/main/subdom.txt",
-    "https://raw.githubusercontent.com/ccpthisbigdog/freedomchina/refs/heads/main/clab.yaml",
-    "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt",
-    "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.meta.yml",
-    "https://raw.githubusercontent.com/ripaojiedian/freenode/main/clash",
-    "https://raw.githubusercontent.com/ripaojiedian/freenode/main/sub",
-    "https://raw.githubusercontent.com/free18/v2ray/refs/heads/main/c.yaml",
-    "https://raw.githubusercontent.com/free18/v2ray/refs/heads/main/v.txt",
-    "https://beacon-api.ssdxz.cn/sub?token=b7013ff726878124d363c1680f59de74&b64",
-    "https://raw.githubusercontent.com/4n0nymou3/multi-proxy-config-fetcher/main/configs/proxy_configs.txt",
-    "https://gist.githubusercontent.com/shuaidaoya/9e5cf2749c0ce79932dd9229d9b4162b/raw/base64.txt"
-]"
+            new_list_str = f"""EXTERNAL_URLS = [
+    {urls_formatted}
+]"""
 
         new_content = re.sub(r'EXTERNAL_URLS\s*=\s*\[.*?\]', new_list_str, content, flags=re.DOTALL)
 
