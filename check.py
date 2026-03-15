@@ -15,7 +15,7 @@ CHANNELS = [
     'https://t.me/s/freeVPNjd'
 ]
 
-# 引入了你提供的所有宝藏节点库，这里写死，不再让脚本自我修改
+# 引入了你提供的所有宝藏节点库，采用绝对安全的写死列表
 EXTERNAL_URLS = [
     "https://raw.githubusercontent.com/ovmvo/FreeSub/refs/heads/main/sub/permanent/mihomo.yaml",
     "https://raw.githubusercontent.com/clashv2ray-hub/v2rayfree/refs/heads/main/v2ray.txt",
@@ -131,7 +131,7 @@ def get_and_heal_tg_nodes():
 
 def check_external_links():
     print("\n" + "="*50)
-    print("🔗 阶段 2: 探测固定外部订阅源 (安全隔离版)")
+    print("🔗 阶段 2: 探测固定外部订阅源 (安全稳固版)")
     print("="*50)
     valid_urls = []
     
@@ -145,11 +145,11 @@ def check_external_links():
                     print(f"  [✅ 存活] 发现 {count:3} 个节点 <- {url}")
                     valid_urls.append(url)
                 else:
-                    print(f"  [⚠️ 空链] 未发现节点 <- {url} (暂时跳过)")
+                    print(f"  [⚠️ 空链] 未发现节点 <- {url} (跳过)")
             else:
-                print(f"  [❌ 报错] HTTP {res.status_code} <- {url} (暂时跳过)")
+                print(f"  [❌ 报错] HTTP {res.status_code} <- {url} (跳过)")
         except Exception as e:
-            print(f"  [❌ 超时] 无法连接 <- {url} (暂时跳过)")
+            print(f"  [❌ 超时] 无法连接 <- {url} (跳过)")
 
     return valid_urls
 
@@ -233,5 +233,5 @@ if __name__ == "__main__":
     with open("sub_api_url.txt", "w") as f:
         f.write(sub_api)
         
-    print(f"  --> 过滤死链后，最终下发给 Subconverter 的有效订阅入口: {len(all_urls)} 个。")
+    print(f"  --> 聚合完毕，最终下发给 Subconverter 的入口: {len(all_urls)} 个。")
     print("  --> 等待 check.py 进行全局底层去重与极速测速...\n")
