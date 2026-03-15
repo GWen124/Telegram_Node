@@ -49,7 +49,7 @@ DYNAMIC_REPOS = [
 # 2. 核心探测与统计函数
 # ==========================================
 def count_nodes_in_text(text, is_yaml=False):
-    """智能统计文本中的节点数量（兼容无扩展名的 YAML 和 Base64）"""
+    """智能统计文本中的节点数量"""
     if is_yaml or 'proxies:' in text:
         try:
             data = yaml.safe_load(text)
@@ -137,7 +137,7 @@ def get_and_heal_tg_nodes():
 
 def check_external_links():
     print("\n" + "="*50)
-    print("🔗 阶段 2: 探测固定外部订阅源 (只做标记，绝对不修改源码)")
+    print("🔗 阶段 2: 探测固定外部订阅源 (安全隔离版)")
     print("="*50)
     valid_urls = []
     
@@ -151,15 +151,12 @@ def check_external_links():
                     print(f"  [✅ 存活] 发现 {count:3} 个节点 <- {url}")
                     valid_urls.append(url)
                 else:
-                    # 只在日志做标记，不执行删除代码的操作
-                    print(f"  [⚠️ 空链] 未发现节点，标记失效跳过 <- {url}")
+                    print(f"  [⚠️ 空链] 未发现节点 <- {url} (暂时跳过)")
             else:
-                # HTTP报错，只做标记记录
-                print(f"  [❌ 报错] HTTP {res.status_code}，标记失效跳过 <- {url}")
+                print(f"  [❌ 报错] HTTP {res.status_code} <- {url} (暂时跳过)")
         except Exception as e:
-            # 彻底连不上、超时，只做标记记录
-            print(f"  [❌ 超时/异常] 无法连接，标记失效跳过 <- {url}")
-            
+            print(f"  [❌ 超时] 无法连接 <- {url} (暂时跳过)")
+
     return valid_urls
 
 def get_dynamic_links():
@@ -234,7 +231,6 @@ if __name__ == "__main__":
     else:
         with open("tg_nodes.txt", "w") as f: f.write("")
     
-    # 只有真正检测存活的 valid_external_urls 才会下发给转换器
     all_urls = ["http://127.0.0.1:8000/tg_nodes.txt"] + valid_external_urls + dynamic_urls
     encoded_url = urllib.parse.quote("|".join(all_urls))
     
