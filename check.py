@@ -5,7 +5,6 @@ import urllib.parse
 import json
 import hashlib
 import yaml
-from datetime import datetime, timedelta, timezone
 
 # ==========================================
 # 1. 订阅源配置
@@ -16,7 +15,7 @@ CHANNELS = [
     'https://t.me/s/freeVPNjd'
 ]
 
-# 引入了你提供的所有宝藏节点库，已补齐 4n0nymou3 的全套套餐！
+# 引入了你提供的所有宝藏节点库（固定写死，绝对不自动删改代码）
 EXTERNAL_URLS = [
     "https://raw.githubusercontent.com/ovmvo/FreeSub/refs/heads/main/sub/permanent/mihomo.yaml",
     "https://raw.githubusercontent.com/clashv2ray-hub/v2rayfree/refs/heads/main/v2ray.txt",
@@ -136,33 +135,11 @@ def get_and_heal_tg_nodes():
     print(f"  --> 净化与初步去重后，TG 频道共保留 {len(clean_nodes)} 个有效节点。")
     return clean_nodes
 
-def remove_dead_links_from_code(valid_urls):
-    """读取自身源码，替换 EXTERNAL_URLS 列表，实现自我进化"""
-    try:
-        with open(__file__, 'r', encoding='utf-8') as f:
-            content = f.read()
-
-        if not valid_urls:
-            new_list_str = "EXTERNAL_URLS = []"
-        else:
-            urls_formatted = ",\n    ".join([f'"{url}"' for url in valid_urls])
-            new_list_str = f"EXTERNAL_URLS = [\n    {urls_formatted}\n]"
-
-        new_content = re.sub(r'EXTERNAL_URLS\s*=\s*\[.*?\]', new_list_str, content, flags=re.DOTALL)
-
-        if new_content != content:
-            with open(__file__, 'w', encoding='utf-8') as f:
-                f.write(new_content)
-            print("\n  [♻️ 源码净化] 脚本已自我修改，永久删除了失效的链接！")
-    except Exception as e:
-        print(f"\n  [⚠️ 源码净化失败] {e}")
-
 def check_external_links():
     print("\n" + "="*50)
-    print("🔗 阶段 2: 探测固定外部订阅源 (包含最新加入的仓库)")
+    print("🔗 阶段 2: 探测固定外部订阅源 (只做标记，绝对不修改源码)")
     print("="*50)
     valid_urls = []
-    dead_urls = []
     
     for url in EXTERNAL_URLS:
         is_yaml = url.endswith('.yaml') or url.endswith('.yml') or '/clash' in url or 'proxies' in url
@@ -174,17 +151,14 @@ def check_external_links():
                     print(f"  [✅ 存活] 发现 {count:3} 个节点 <- {url}")
                     valid_urls.append(url)
                 else:
-                    print(f"  [⚠️ 空链] 未发现节点 <- {url} (标记为死链)")
-                    dead_urls.append(url)
+                    # 只在日志做标记，不执行删除代码的操作
+                    print(f"  [⚠️ 空链] 未发现节点，标记失效跳过 <- {url}")
             else:
-                print(f"  [❌ 报错] HTTP {res.status_code} <- {url} (标记为死链)")
-                dead_urls.append(url)
+                # HTTP报错，只做标记记录
+                print(f"  [❌ 报错] HTTP {res.status_code}，标记失效跳过 <- {url}")
         except Exception as e:
-            print(f"  [❌ 超时] 无法连接 <- {url} (标记为死链)")
-            dead_urls.append(url)
-
-    if dead_urls:
-        remove_dead_links_from_code(valid_urls)
+            # 彻底连不上、超时，只做标记记录
+            print(f"  [❌ 超时/异常] 无法连接，标记失效跳过 <- {url}")
             
     return valid_urls
 
@@ -260,6 +234,7 @@ if __name__ == "__main__":
     else:
         with open("tg_nodes.txt", "w") as f: f.write("")
     
+    # 只有真正检测存活的 valid_external_urls 才会下发给转换器
     all_urls = ["http://127.0.0.1:8000/tg_nodes.txt"] + valid_external_urls + dynamic_urls
     encoded_url = urllib.parse.quote("|".join(all_urls))
     
