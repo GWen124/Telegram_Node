@@ -136,7 +136,7 @@ print("\n🚀 预检完成，正式启动 Mihomo 内核进行并发极限测速.
 process = subprocess.Popen(["./mihomo", "-d", ".", "-f", "mihomo_config.yaml"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 time.sleep(4) 
 
-MAX_DELAY = 2500 
+MAX_DELAY = 1000 
 
 def test_proxy(p, retries=2):
     name = p['name']
