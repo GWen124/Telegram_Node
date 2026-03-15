@@ -213,8 +213,10 @@ if __name__ == "__main__":
     local_nodes_urls = get_local_nodes_urls()
     tg_nodes = get_and_heal_tg_nodes()
     
+    # 🌟 只检测外部源，筛选出存活的链接
     valid_external_urls = check_external_links(EXTERNAL_URLS)
     
+    # 🌟 核心升级：如果发现死链，自动改写 sources.yaml 永久删除它们！
     if len(valid_external_urls) != len(EXTERNAL_URLS):
         try:
             with open("sources.yaml", "r", encoding="utf-8") as f:
