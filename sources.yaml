@@ -10,9 +10,6 @@ GIST_ID: "68d76e12c5ecd96e195b704bee0aac7f"
 # 以下是你原来的节点获取源配置文件
 # ==========================================
 CHANNELS:
-  - "https://t.me/s/proxygogogo"
-# ... 后面的保持原样 ...
-CHANNELS:
 - https://t.me/s/proxygogogo
 - https://t.me/s/freekankan
 - https://t.me/s/freeVPNjd
