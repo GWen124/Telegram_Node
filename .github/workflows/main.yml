@@ -65,6 +65,11 @@ jobs:
         run: |
           curl -s "http://127.0.0.1:25500/sub?target=mixed&url=http://127.0.0.1:8000/final_sub.yaml" > final_sub.txt
 
+      - name: 8.5. Upload to Gist (自动检测同步开关)
+        env:
+          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+        run: python upload_gist.py
+        
       - name: 9. Clean Nodes, Update Config & Push
         run: |
           git config --local user.email "actions@github.com"
